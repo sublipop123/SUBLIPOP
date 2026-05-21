@@ -1,0 +1,848 @@
+# PROMPT DE DISEÑO - SUBLI POP
+
+## OBJETIVO
+Aplicar EXACTAMENTE el siguiente diseño visual sobre el archivo funcional `index.html.backup.2026-05-08` (o el index funcional que funciona perfectamente). Solo se debe cambiar CSS y el HTML minimo necesario para que el CSS funcione. NO se debe tocar, eliminar ni modificar ninguna funcion JavaScript existente. El archivo `ESTILOS_DISEÑO_ACTUAL.css` en la misma carpeta contiene TODO el CSS exacto que se debe aplicar. Usalo como referencia primaria.
+
+## REGLA DE ORO
+**MANTENER TODA LA FUNCIONALIDAD EXISTENTE.** Los modales de login, carrito, catalogo dinamico, notificaciones, sistema de usuarios, base de datos, etc., deben seguir funcionando exactamente igual. Solo se cambia el aspecto visual.
+
+---
+
+## 1. VARIABLES CSS EXACTAS
+
+Reemplazar todas las variables CSS por estas exactas:
+
+```css
+:root {
+    --primary: #e040fb;
+    --primary-dark: #c2185b;
+    --secondary: #7c4dff;
+    --secondary-dark: #651fff;
+    --accent: #ff5252;
+    --accent-warm: #ff6b35;
+    --cyan: #00bcd4;
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #12121a;
+    --bg-tertiary: #1a1a24;
+    --bg-card: #1a1a24;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255,255,255,0.75);
+    --text-muted: rgba(255,255,255,0.5);
+    --border-color: rgba(255,255,255,0.08);
+    --shadow: rgba(0,0,0,0.3);
+    --shadow-strong: rgba(0,0,0,0.5);
+}
+
+[data-theme="light"] {
+    --bg-primary: #f5f5f7;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #eaeaea;
+    --bg-card: #ffffff;
+    --text-primary: #1a1a2e;
+    --text-secondary: rgba(26,26,46,0.75);
+    --text-muted: rgba(26,26,46,0.5);
+    --text-on-primary: #ffffff;
+    --border-color: rgba(26,26,46,0.1);
+    --shadow: rgba(0,0,0,0.08);
+    --shadow-strong: rgba(0,0,0,0.15);
+    --primary: #d933c7;
+    --secondary: #6556e6;
+    --accent: #e53e3e;
+    --cyan: #0097a7;
+    --gradient-text: linear-gradient(135deg, #d933c7 0%, #6556e6 50%, #0097a7 100%);
+}
+
+[data-theme="dark"] {
+    --text-on-primary: #ffffff;
+}
+```
+
+---
+
+## 2. BASE GENERAL
+
+- `font-family: 'Poppins', sans-serif;`
+- `background: var(--bg-primary);`
+- `color: var(--text-primary);`
+- `overflow-x: hidden;`
+- `cursor: none;` (solo en desktop)
+- Smooth scroll
+- Tema dark por defecto: `<html data-theme="dark">`
+
+---
+
+## 3. CURSOR CUSTOM (DESKTOP)
+
+Usar cursor custom GPU-optimizado:
+
+```css
+.cursor {
+    position: fixed;
+    top: 0; left: 0;
+    width: 20px; height: 20px;
+    border: 2px solid var(--primary);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    transition: width 0.2s ease, height 0.2s ease, border-color 0.3s ease, background 0.3s ease;
+    transform: translate3d(var(--cx, 0px), var(--cy, 0px), 0px) translate(-50%, -50%);
+    will-change: transform;
+    mix-blend-mode: difference;
+}
+.cursor.hover { width: 60px; height: 60px; border-color: var(--secondary); background: rgba(124,77,255,0.1); }
+
+.cursor-dot {
+    position: fixed; top: 0; left: 0;
+    width: 6px; height: 6px;
+    background: var(--primary);
+    border-radius: 50%;
+    pointer-events: none; z-index: 10001;
+    transform: translate3d(var(--dx, 0px), var(--dy, 0px), 0px) translate(-50%, -50%);
+    will-change: transform;
+}
+```
+
+**JS del cursor:** Usar `cursorDot.style.setProperty('--dx', mouseX + 'px')` y `cursor.style.setProperty('--cx', cursorX + 'px')` para evitar reflows. En mobile ocultar cursor y cursor-dot.
+
+---
+
+## 4. NAVBAR - PASTILLA FLOTANTE (NAV-PILL)
+
+**ESTRUCTURA HTML REQUERIDA:**
+
+Reemplazar toda la navbar actual por esta estructura exacta (adaptando los onclick e ids existentes del backup):
+
+```html
+<nav class="nav-float">
+    <div class="nav-pill">
+        <div class="nav-left">
+            <img src="LOGOTIPOS/LOGO_BLANCO.png" alt="Subli Pop" class="nav-logo-img">
+            <div>
+                <div class="nav-brand-name">Subli Pop</div>
+                <div class="nav-brand-tag">ARTE EN SUBLIMACION</div>
+            </div>
+        </div>
+        <div class="nav-center">
+            <a href="#inicio" class="nav-link active">Inicio</a>
+            <a href="#productos" class="nav-link">Catalogo</a>
+            <a href="#proceso" class="nav-link">Proceso</a>
+            <a href="#nosotros" class="nav-link">Nosotros</a>
+            <a href="#contacto" class="nav-link">Contacto</a>
+        </div>
+        <div class="nav-right">
+            <!-- Boton tema, carrito, pedidos, login/usuario (mantener los onclick e ids del backup) -->
+            <button class="nav-icon-btn" id="themeToggleBtn" onclick="toggleTheme()">...</button>
+            <button class="nav-icon-btn" id="cartIcon" onclick="openCart()">...</button>
+            <button class="nav-icon-btn" id="myOrdersBtn" onclick="showMyOrders()" style="display:none;">...</button>
+            <div class="nav-user" id="navUserSection" onclick="showLoginModal()">
+                <img src="https://ui-avatars.com/api/?name=Moises&background=B100FF&color=fff" alt="Usuario" class="nav-user-avatar" id="navUserAvatar">
+                <span class="nav-user-name" id="navUserName">Moises</span>
+            </div>
+        </div>
+        <button class="menu-toggle" aria-label="Menu" onclick="document.querySelector('.mobile-nav').classList.add('open');document.querySelector('.mobile-nav-overlay').classList.add('open');">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</nav>
+```
+
+**CSS DE LA NAVBAR:**
+
+```css
+.nav-float {
+    position: fixed;
+    top: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: calc(100% - 3rem);
+    max-width: 1200px;
+}
+
+.nav-pill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1.25rem;
+    background: rgba(15, 15, 22, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 100px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 0 0 1px rgba(0, 188, 212, 0.08),
+        0 0 20px rgba(177, 0, 255, 0.06);
+    transition: all 0.4s ease;
+}
+
+.nav-pill:hover {
+    border-color: rgba(0, 188, 212, 0.25);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 0 0 1px rgba(0, 188, 212, 0.15),
+        0 0 30px rgba(177, 0, 255, 0.1);
+}
+
+.nav-logo-img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(224, 64, 251, 0.3); }
+
+.nav-brand-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.nav-brand-tag { font-size: 0.6rem; font-weight: 500; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+
+.nav-center {
+    display: flex; align-items: center; gap: 0.25rem;
+    background: rgba(0, 0, 0, 0.3); padding: 0.35rem;
+    border-radius: 100px; border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.nav-link {
+    padding: 0.45rem 1rem; border-radius: 100px;
+    font-size: 0.8rem; font-weight: 500; color: var(--text-secondary);
+    text-decoration: none; transition: all 0.3s ease; position: relative;
+}
+.nav-link:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.05); }
+.nav-link.active {
+    background: rgba(26, 26, 36, 0.9); color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 12px rgba(224, 64, 251, 0.15);
+}
+
+.nav-icon-btn {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.05); color: var(--text-primary);
+    cursor: pointer; transition: all 0.3s ease;
+}
+.nav-icon-btn:hover {
+    background: rgba(224, 64, 251, 0.15); border-color: rgba(224, 64, 251, 0.3);
+    box-shadow: 0 0 15px rgba(224, 64, 251, 0.2); transform: translateY(-2px);
+}
+
+/* Responsive nav */
+@media (max-width: 768px) {
+    .nav-center, .nav-user-name { display: none; }
+    .menu-toggle { display: flex; }
+    .nav-pill { padding: 0.5rem 0.75rem; }
+    .nav-float { top: 0.75rem; width: calc(100% - 1.5rem); }
+}
+```
+
+---
+
+## 5. HERO SECTION
+
+**ESTRUCTURA HTML REQUERIDA:**
+
+```html
+<section class="hero" id="inicio">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-vignette"></div>
+
+    <div class="hero-content">
+        <div class="hero-eyebrow">
+            <span class="eyebrow-dot"></span>
+            <span>ARTE EN SUBLIMACION PREMIUM</span>
+        </div>
+
+        <h1 class="hero-title">
+            <span class="hero-title-3d" data-text="TRANSFORMA TU ESTILO">TRANSFORMA TU ESTILO</span>
+        </h1>
+
+        <p class="hero-subtitle">
+            Disenos vibrantes, calidad que perdura. Cada pieza cuenta tu historia.
+        </p>
+
+        <div class="hero-buttons">
+            <a href="#productos" class="btn-cyan">Ver Catalogo</a>
+            <a href="#contacto" class="btn-magenta">Contactar</a>
+        </div>
+    </div>
+
+    <div class="hero-scroll-indicator">
+        <div class="mouse-icon">
+            <div class="mouse-wheel"></div>
+        </div>
+    </div>
+</section>
+```
+
+**CSS DEL HERO:**
+
+```css
+.hero {
+    position: relative;
+    min-height: 100vh; width: 100%;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    background: #000000;
+}
+
+#hero-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+
+.hero-vignette {
+    position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 0%, transparent 40%, rgba(0,0,0,0.6) 100%);
+}
+
+.hero-content { position: relative; z-index: 10; text-align: center; max-width: 1000px; margin: 0 auto; padding: 8rem 4% 4%; pointer-events: none; }
+.hero-content > * { pointer-events: auto; }
+
+.hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    padding: 0.55rem 1.4rem;
+    background: rgba(12, 12, 18, 0.82);
+    border-radius: 100px;
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 2.5px;
+    text-transform: uppercase; color: #e0e0e0;
+    margin-bottom: 1.5rem;
+}
+
+.eyebrow-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #00ff88;
+    animation: pulseDot 2s ease-in-out infinite;
+}
+
+@keyframes pulseDot { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
+
+.hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 10vw, 7.5rem);
+    line-height: 1.05; letter-spacing: 3px;
+    margin-bottom: 1.25rem;
+}
+
+.hero-title-3d {
+    display: block;
+    background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 40%, #b0b0b0 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    position: relative;
+}
+
+.hero-title-3d::after {
+    content: attr(data-text);
+    position: absolute; left: 0; top: 0; width: 100%; z-index: -1;
+    background: linear-gradient(135deg, #e040fb 0%, #7c4dff 50%, #00bcd4 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    transform: translateY(8px) scaleY(0.92); filter: blur(6px); opacity: 0.4;
+}
+
+.hero-subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.35rem);
+    color: var(--text-secondary); max-width: 600px; margin: 0 auto 2rem;
+    line-height: 1.6; font-weight: 300;
+}
+
+.hero-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+.btn-cyan {
+    padding: 0.85rem 2rem; border-radius: 100px; font-weight: 600; font-size: 0.9rem;
+    cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.75rem;
+    background: rgba(10, 10, 15, 0.7); border: 2px solid #00D4FF; color: #ffffff;
+    box-shadow: inset 0 0 15px rgba(0, 212, 255, 0.15), 0 0 20px rgba(0, 212, 255, 0.2);
+}
+.btn-cyan:hover { background: rgba(0, 212, 255, 0.1); box-shadow: inset 0 0 25px rgba(0, 212, 255, 0.25), 0 0 40px rgba(0, 212, 255, 0.35); transform: translateY(-3px); }
+
+.btn-magenta {
+    padding: 0.85rem 2rem; border-radius: 100px; font-weight: 600; font-size: 0.9rem;
+    cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.75rem;
+    background: rgba(10, 10, 15, 0.7); border: 2px solid #FF00AA; color: #ffffff;
+    box-shadow: inset 0 0 15px rgba(255, 0, 170, 0.15), 0 0 20px rgba(255, 0, 170, 0.2);
+}
+.btn-magenta:hover { background: rgba(255, 0, 170, 0.1); box-shadow: inset 0 0 25px rgba(255, 0, 170, 0.25), 0 0 40px rgba(255, 0, 170, 0.35); transform: translateY(-3px); }
+
+.hero-scroll-indicator { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 10; }
+.mouse-icon { width: 24px; height: 38px; border: 2px solid rgba(255,255,255,0.4); border-radius: 12px; position: relative; }
+.mouse-wheel { width: 4px; height: 8px; background: rgba(255,255,255,0.6); border-radius: 2px; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); animation: scrollWheel 2s ease-in-out infinite; }
+@keyframes scrollWheel { 0%, 100% { top: 8px; opacity: 1; } 50% { top: 18px; opacity: 0; } }
+```
+
+**IMPORTANTE - ESCENA THREE.JS DEL HERO:**
+
+El hero incluye una escena WebGL con Three.js importada como ES Module desde `https://unpkg.com/three@0.160.0/build/three.module.js`. La escena contiene:
+- Fondo nebulosa con shader custom (SphereGeometry 40,64,64 con FogExp2 0x000000, 0.015)
+- 3000 particulas estelares (PointsMaterial size:0.05, vertexColors, AdditiveBlending)
+- 3 esferas de cristal con sistemas de vapor animados
+- 4 poliedros obsidianos
+- 4 cristales flotantes (MeshPhysicalMaterial con transmission:0.95)
+- 3 luces point (cian, magenta, violeta)
+- Parallax suave con mouse
+- IntersectionObserver para pausar render cuando no es visible
+
+Esta escena Three.js DEBE mantenerse tal cual. Ver el JS exacto en el archivo actual.
+
+---
+
+## 6. MARQUEE
+
+```html
+<div class="marquee-section">
+    <div class="marquee-track">
+        <div class="marquee-content"><span>SUBLIMACION</span><div class="dot"></div><span>CALIDAD PREMIUM</span><div class="dot"></div><span>DISENO EXCLUSIVO</span><div class="dot"></div><span>ENVIO RAPIDO</span><div class="dot"></div><span>PERSONALIZACION TOTAL</span><div class="dot"></div></div>
+        <div class="marquee-content"><span>SUBLIMACION</span><div class="dot"></div><span>CALIDAD PREMIUM</span><div class="dot"></div><span>DISENO EXCLUSIVO</span><div class="dot"></div><span>ENVIO RAPIDO</span><div class="dot"></div><span>PERSONALIZACION TOTAL</span><div class="dot"></div></div>
+    </div>
+</div>
+```
+
+CSS: `.marquee-section { overflow: hidden; padding: 1.5rem 0; background: var(--bg-primary); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }`
+`.marquee-track { display: flex; animation: marqueeScroll 25s linear infinite; width: max-content; }`
+`.marquee-content { display: flex; align-items: center; gap: 2rem; padding: 0 1rem; font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 4px; color: var(--text-muted); white-space: nowrap; }`
+`.marquee-content .dot { width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }`
+
+---
+
+## 7. SECCION PRODUCTOS 3D
+
+**ESTRUCTURA HTML:**
+
+```html
+<section class="products-3d-section" id="productos-3d">
+    <div class="section-header reveal">
+        <div class="section-tag">Experiencia 3D</div>
+        <h2 class="section-title">Visualiza tus <span class="gradient-text">Productos</span></h2>
+        <p class="section-subtitle">Selecciona el color y observa el producto en tiempo real.</p>
+    </div>
+    <div class="products-3d-grid">
+        <!-- Tarjeta Taza -->
+        <div class="product-3d-card reveal">
+            <div class="product-3d-viewer" id="taza-viewer">
+                <span class="badge-3d">3D</span>
+            </div>
+            <div class="product-3d-info">
+                <h3>Tazas Personalizadas</h3>
+                <p>Sublimacion full wrap 360deg. Ceramica premium importada.</p>
+                <div class="product-3d-features">
+                    <div class="feature-item"><span class="check">✓</span><span>Sublimacion 360deg</span></div>
+                    <div class="feature-item"><span class="check">✓</span><span>Ceramica premium</span></div>
+                    <div class="feature-item"><span class="check">✓</span><span>Resistente</span></div>
+                </div>
+                <p style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem;">Color:</p>
+                <div class="color-picker" id="taza-colors">
+                    <button class="color-btn active" data-color="#ffffff" style="background:#fff; border: 2px solid #ddd;"></button>
+                    <button class="color-btn" data-color="#1a1a2e" style="background:#1a1a2e;"></button>
+                    <button class="color-btn" data-color="#e040fb" style="background:#e040fb;"></button>
+                    <button class="color-btn" data-color="#4169e1" style="background:#4169e1;"></button>
+                    <button class="color-btn" data-color="#4caf50" style="background:#4caf50;"></button>
+                    <button class="color-btn" data-color="#9c27b0" style="background:#9c27b0;"></button>
+                </div>
+            </div>
+        </div>
+        <!-- Tarjeta Camisa (misma estructura, id="camisa-viewer" y id="camisa-colors") -->
+    </div>
+</section>
+```
+
+**CSS:**
+
+```css
+.products-3d-section { padding: 6rem 4%; background: var(--bg-secondary); }
+.section-header { text-align: center; margin-bottom: 4rem; }
+.section-tag {
+    display: inline-block; padding: 0.4rem 1rem;
+    background: linear-gradient(135deg, rgba(224,64,251,0.15), rgba(124,77,255,0.15));
+    border: 1px solid rgba(224,64,251,0.25); border-radius: 100px;
+    font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--primary); margin-bottom: 1rem;
+}
+.section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: 2px; margin-bottom: 0.75rem; }
+.gradient-text { background: linear-gradient(135deg, var(--primary), var(--secondary), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.section-subtitle { font-size: 1.1rem; color: var(--text-secondary); max-width: 500px; margin: 0 auto; }
+
+.products-3d-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
+.product-3d-card { background: var(--bg-card); border-radius: 24px; border: 1px solid var(--border-color); overflow: hidden; transition: all 0.4s ease; }
+.product-3d-card:hover { transform: translateY(-8px); box-shadow: 0 20px 60px rgba(0,0,0,0.3); border-color: rgba(224,64,251,0.2); }
+
+.product-3d-viewer { height: 320px; background: linear-gradient(135deg, #0a0a0f, #1a1a24); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.badge-3d { position: absolute; top: 1rem; right: 1rem; padding: 0.3rem 0.8rem; background: rgba(224,64,251,0.2); border: 1px solid rgba(224,64,251,0.3); border-radius: 8px; font-size: 0.7rem; font-weight: 700; color: var(--primary); }
+
+.product-3d-info { padding: 1.5rem; }
+.product-3d-info h3 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+.product-3d-info p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem; }
+.product-3d-features { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.feature-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text-secondary); }
+.feature-item .check { color: #00ff88; font-weight: 700; }
+
+.color-picker { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.color-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: all 0.3s ease; }
+.color-btn:hover { transform: scale(1.15); }
+.color-btn.active { border-color: var(--primary); box-shadow: 0 0 0 2px var(--bg-card), 0 0 10px var(--primary); }
+```
+
+**VISORES 3D:** Los visores Three.js (taza y camisa) se inicializan con IntersectionObserver cuando entran al viewport. Cada uno tiene su propia escena, camara, renderer y animacion. Ver JS exacto en el archivo actual.
+
+---
+
+## 8. SECCION SLIDESHOW
+
+```html
+<section class="slideshow-section">
+    <div class="section-header reveal">
+        <div class="section-tag">Nuestros Trabajos</div>
+        <h2 class="section-title">Galeria de <span class="gradient-text">Proyectos</span></h2>
+    </div>
+    <div class="slideshow-container reveal">
+        <div class="slideshow">
+            <div class="slideshow-track">
+                <div class="slide"><img src="https://images.unsplash.com/photo-...?w=1200&q=80" alt="Camiseta"></div>
+                <div class="slide"><img src="https://images.unsplash.com/photo-...?w=1200&q=80" alt="Taza"></div>
+                <div class="slide"><img src="https://images.unsplash.com/photo-...?w=1200&q=80" alt="Diseno"></div>
+                <div class="slide"><img src="https://images.unsplash.com/photo-...?w=1200&q=80" alt="Producto"></div>
+                <div class="slide"><img src="https://images.unsplash.com/photo-...?w=1200&q=80" alt="Personalizado"></div>
+            </div>
+            <div class="slideshow-dots">
+                <button class="slideshow-dot active"></button>
+                <button class="slideshow-dot"></button>
+                <button class="slideshow-dot"></button>
+                <button class="slideshow-dot"></button>
+                <button class="slideshow-dot"></button>
+            </div>
+        </div>
+    </div>
+</section>
+```
+
+CSS: `.slideshow-section { padding: 6rem 4%; background: var(--bg-primary); }`
+`.slideshow-container { max-width: 1000px; margin: 0 auto; }`
+`.slideshow { position: relative; border-radius: 24px; overflow: hidden; border: 1px solid var(--border-color); }`
+`.slideshow-track { display: flex; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }`
+`.slide { min-width: 100%; aspect-ratio: 16/9; }`
+`.slide img { width: 100%; height: 100%; object-fit: cover; }`
+`.slideshow-dots { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); display: flex; gap: 0.5rem; }`
+`.slideshow-dot { width: 10px; height: 10px; border-radius: 50%; border: none; background: rgba(255,255,255,0.3); cursor: pointer; transition: all 0.3s ease; }`
+`.slideshow-dot.active { background: var(--primary); box-shadow: 0 0 10px var(--primary); }`
+
+---
+
+## 9. CATALOGO
+
+```html
+<section class="catalog-dark" id="productos">
+    <div class="catalog-header reveal">
+        <div class="section-tag">Catalogo</div>
+        <h2 class="section-title">Nuestros <span class="gradient-text">Productos</span></h2>
+        <p class="section-subtitle">Explora nuestra coleccion de productos personalizables.</p>
+    </div>
+    <!-- Filtros, search, grid dinamico (mantener funcionalidad existente) -->
+    <div class="products-grid-dark" id="dynamicCatalogContainer"></div>
+</section>
+```
+
+**CSS DEL CATALOGO:**
+
+```css
+.catalog-dark { padding: 6rem 4%; background: var(--bg-primary); }
+
+.products-grid-dark { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; max-width: 1200px; margin: 0 auto; }
+
+.product-card-dark {
+    background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border-color);
+    overflow: hidden; transition: all 0.4s ease; position: relative;
+}
+.product-card-dark:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-color: rgba(224,64,251,0.2); }
+
+.product-image-dark { height: 220px; background: linear-gradient(135deg, #1a1a24, #2a2a3a); position: relative; overflow: hidden; padding: 1rem; display: flex; align-items: center; justify-content: center; }
+.product-image-dark img { width: 100%; height: 100%; object-fit: cover; border-radius: 15px; }
+
+.product-info-dark { padding: 1.25rem; }
+.product-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; }
+.product-price { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem; }
+.product-category { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem; }
+
+.add-to-cart-btn {
+    width: 100%; padding: 0.75rem; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff; font-weight: 600; font-size: 0.85rem; cursor: pointer;
+    transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+}
+.add-to-cart-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(224,64,251,0.3); }
+```
+
+---
+
+## 10. SECCION PROCESO
+
+```html
+<section class="process-section" id="proceso">
+    <div class="section-header reveal">
+        <div class="section-tag">Como Trabajamos</div>
+        <h2 class="section-title">Nuestro <span class="gradient-text">Proceso</span></h2>
+    </div>
+    <div class="process-timeline">
+        <!-- Pasos del proceso con .process-step, .step-number, .step-content -->
+    </div>
+</section>
+```
+
+CSS: `.process-section { padding: 6rem 4%; background: var(--bg-secondary); }`
+`.process-timeline { max-width: 800px; margin: 0 auto; position: relative; }`
+`.process-timeline::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--primary), var(--secondary)); transform: translateX(-50%); }`
+`.process-step { display: flex; gap: 2rem; margin-bottom: 3rem; position: relative; }`
+`.step-number { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; color: #fff; flex-shrink: 0; box-shadow: 0 0 20px rgba(224,64,251,0.3); }`
+`.step-content { background: var(--bg-card); padding: 1.5rem; border-radius: 16px; border: 1px solid var(--border-color); flex: 1; }`
+
+---
+
+## 11. SECCION NOSOTROS
+
+```html
+<section class="who-section" id="nosotros">
+    <div class="section-header reveal">
+        <div class="section-tag">El Equipo</div>
+        <h2 class="section-title">Quienes <span class="gradient-text">Somos</span></h2>
+    </div>
+    <div class="who-grid">
+        <!-- Tarjetas con .who-card, .who-avatar, .who-info -->
+    </div>
+</section>
+```
+
+CSS: `.who-section { padding: 6rem 4%; background: var(--bg-primary); }`
+`.who-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; max-width: 1000px; margin: 0 auto; }`
+`.who-card { background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border-color); padding: 2rem; text-align: center; transition: all 0.4s ease; }`
+`.who-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.3); }`
+`.who-avatar { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 1rem; object-fit: cover; border: 3px solid var(--primary); box-shadow: 0 0 20px rgba(224,64,251,0.3); }`
+`.who-info h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }`
+`.who-info p { font-size: 0.85rem; color: var(--text-muted); }`
+
+---
+
+## 12. SECCION MAYORISTAS
+
+```html
+<section class="wholesale-section">
+    <div class="section-header reveal">
+        <div class="section-tag">Mayoristas</div>
+        <h2 class="section-title">Precios al <span class="gradient-text">Por Mayor</span></h2>
+    </div>
+    <div class="wholesale-grid">
+        <!-- Tarjetas con .wholesale-card -->
+    </div>
+</section>
+```
+
+CSS: `.wholesale-section { padding: 6rem 4%; background: var(--bg-secondary); }`
+`.wholesale-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; max-width: 1000px; margin: 0 auto; }`
+`.wholesale-card { background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border-color); padding: 2rem; transition: all 0.4s ease; }`
+`.wholesale-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.3); border-color: rgba(224,64,251,0.2); }`
+
+---
+
+## 13. SECCION FEATURES
+
+```html
+<section class="features-section">
+    <div class="section-header reveal">
+        <div class="section-tag">Por Que Elegirnos</div>
+        <h2 class="section-title">Ventajas <span class="gradient-text">Exclusivas</span></h2>
+    </div>
+    <div class="features-grid">
+        <!-- Tarjetas con .feature-card -->
+    </div>
+</section>
+```
+
+CSS: `.features-section { padding: 6rem 4%; background: var(--bg-primary); }`
+`.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; max-width: 1000px; margin: 0 auto; }`
+`.feature-card { background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border-color); padding: 2rem; transition: all 0.4s ease; }`
+`.feature-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.3); border-color: rgba(224,64,251,0.2); }`
+`.feature-card .icon { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, rgba(224,64,251,0.2), rgba(124,77,255,0.2)); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; font-size: 1.5rem; }`
+
+---
+
+## 14. SECCION CONFIANZA
+
+```html
+<section class="trust-section">
+    <div class="section-header reveal">
+        <div class="section-tag">Resultados</div>
+        <h2 class="section-title">Numeros que <span class="gradient-text">Importan</span></h2>
+    </div>
+    <div class="trust-grid">
+        <!-- Items con .trust-item, .trust-number -->
+    </div>
+</section>
+```
+
+CSS: `.trust-section { padding: 6rem 4%; background: var(--bg-secondary); }`
+`.trust-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; max-width: 1000px; margin: 0 auto; text-align: center; }`
+`.trust-item { padding: 2rem; }`
+`.trust-number { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.5rem, 6vw, 4rem); background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.5rem; }`
+`.trust-label { font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }`
+
+---
+
+## 15. SECCION CTA / CONTACTO
+
+```html
+<section class="cta-section" id="contacto">
+    <div class="cta-card reveal">
+        <h2 class="cta-title">Listo para tu <span class="gradient-text">Proyecto?</span></h2>
+        <p class="cta-text">Contactanos y transforma tu vision en realidad.</p>
+        <form class="cta-form" onsubmit="handleContact(event)">
+            <input type="text" placeholder="Tu nombre" required>
+            <input type="email" placeholder="Tu email" required>
+            <textarea placeholder="Tu mensaje" rows="4" required></textarea>
+            <button type="submit" class="btn-cyan">Enviar Mensaje</button>
+        </form>
+    </div>
+</section>
+```
+
+CSS: `.cta-section { padding: 6rem 4%; background: var(--bg-primary); }`
+`.cta-card { max-width: 600px; margin: 0 auto; background: var(--bg-card); border-radius: 24px; border: 1px solid var(--border-color); padding: 3rem; text-align: center; }`
+`.cta-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.8rem, 4vw, 2.5rem); margin-bottom: 1rem; }`
+`.cta-text { color: var(--text-secondary); margin-bottom: 2rem; }`
+`.cta-form { display: flex; flex-direction: column; gap: 1rem; }`
+`.cta-form input, .cta-form textarea { padding: 0.85rem 1.25rem; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-family: inherit; font-size: 0.9rem; transition: all 0.3s ease; }`
+`.cta-form input:focus, .cta-form textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(224,64,251,0.1); }`
+
+---
+
+## 16. FOOTER
+
+```html
+<footer class="main-footer">
+    <div class="footer-content">
+        <div class="footer-brand">
+            <img src="LOGOTIPOS/LOGO_BLANCO.png" alt="Subli Pop" class="footer-logo">
+            <p>Arte en sublimacion premium desde 2020.</p>
+        </div>
+        <div class="footer-links">
+            <div class="footer-col">
+                <h4>Links</h4>
+                <a href="#inicio">Inicio</a>
+                <a href="#productos">Catalogo</a>
+                <a href="#proceso">Proceso</a>
+                <a href="#nosotros">Nosotros</a>
+            </div>
+            <div class="footer-col">
+                <h4>Contacto</h4>
+                <p>info@sublipop.com</p>
+                <p>+1 234 567 890</p>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>2025 Subli Pop. Todos los derechos reservados.</p>
+        <div class="footer-social">
+            <!-- Iconos sociales -->
+        </div>
+    </div>
+</footer>
+```
+
+CSS: `.main-footer { background: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 4rem 4% 2rem; }`
+`.footer-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }`
+`.footer-brand .footer-logo { width: 40px; margin-bottom: 1rem; }`
+`.footer-brand p { color: var(--text-muted); font-size: 0.9rem; }`
+`.footer-links { display: flex; gap: 3rem; }`
+`.footer-col h4 { font-size: 0.9rem; margin-bottom: 1rem; color: var(--text-primary); }`
+`.footer-col a, .footer-col p { display: block; color: var(--text-muted); text-decoration: none; margin-bottom: 0.5rem; font-size: 0.85rem; transition: color 0.3s ease; }`
+`.footer-col a:hover { color: var(--primary); }`
+`.footer-bottom { border-top: 1px solid var(--border-color); padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }`
+`.footer-bottom p { font-size: 0.8rem; color: var(--text-muted); }`
+`.footer-social { display: flex; gap: 1rem; }`
+`.footer-social a { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: all 0.3s ease; }`
+`.footer-social a:hover { background: var(--primary); color: #fff; transform: translateY(-3px); }`
+
+---
+
+## 17. ANIMACIONES GLOBALES
+
+```css
+/* Reveal on scroll */
+.reveal { opacity: 0; transform: translateY(50px); }
+.reveal.visible { opacity: 1; transform: translateY(0); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* Keyframes esenciales */
+@keyframes gradientRotate { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes pulseGlow { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.15); } }
+@keyframes marqueeScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+```
+
+---
+
+## 18. ACCESIBILIDAD Y PERFORMANCE
+
+Agregar al final del CSS:
+
+```css
+/* Performance: paint containment for off-screen sections */
+.catalog-dark, .process-section, .who-section, .features-section, .trust-section, .cta-section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 300px;
+}
+
+/* Accessibility: respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    html { scroll-behavior: auto; }
+    .cursor, .cursor-dot { display: none !important; }
+    body { cursor: auto; }
+}
+```
+
+---
+
+## 19. MODALES Y COMPONENTES FLOTANTES
+
+Los modales (login, carrito, pedidos, avatar picker) y el carrito drawer deben mantener su funcionalidad exacta pero actualizar sus estilos al dark theme premium:
+
+- Fondos: `var(--bg-card)` o `rgba(10,10,15,0.95)`
+- Bordes: `1px solid var(--border-color)`
+- Border-radius: `20px` o `24px`
+- Sombras: `0 20px 60px rgba(0,0,0,0.5)`
+- Inputs: `background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px;`
+- Botones primarios: gradiente `linear-gradient(135deg, var(--primary), var(--secondary))`
+
+---
+
+## 20. INSTRUCCIONES FINALES PARA LA IA
+
+1. **ABRIR** el archivo `index.html.backup.2026-05-08` (o el index funcional).
+2. **REEMPLAZAR TODO el bloque `<style>...</style>`** con el contenido del archivo `ESTILOS_DISEÑO_ACTUAL.css` que esta en la misma carpeta. Ese archivo tiene el CSS exacto y completo.
+3. **ADAPTAR LA ESTRUCTURA HTML** de la navbar para que use las clases `.nav-float`, `.nav-pill`, `.nav-left`, `.nav-center`, `.nav-right`, `.nav-icon-btn`. Mantener TODOS los `id`, `onclick` y funcionalidades existentes.
+4. **ADAPTAR LA ESTRUCTURA HTML** del hero para que use las clases `.hero`, `#hero-canvas`, `.hero-vignette`, `.hero-content`, `.hero-eyebrow`, `.hero-title`, `.hero-buttons`, `.btn-cyan`, `.btn-magenta`.
+5. **MANTENER TODOS LOS SCRIPTS** tal cual estan. No eliminar ni modificar funciones JS.
+6. **VERIFICAR** que el catalogo dinamico, el carrito, el login, las notificaciones, las busquedas y TODO el sistema siga funcionando exactamente igual.
+7. **NO USAR backdrop-filter** en ningun lugar. Ya fue removido por performance.
+8. **MANTENER** el sistema de tema claro/oscuro (`data-theme="dark"` / `data-theme="light"`).
+9. **INCLUIR** las fuentes de Google: `Bebas Neue`, `Poppins` (300-900), `Space Grotesk` (400-700).
+10. **NO AGREGAR** funcionalidades nuevas que no existan en el backup. Solo cambiar el aspecto visual.
+
+---
+
+## REFERENCIA COMPLETA
+
+El archivo `ESTILOS_DISEÑO_ACTUAL.css` en esta misma carpeta contiene el CSS COMPLETO y EXACTO de este diseno. Usalo como fuente de verdad para todas las propiedades CSS. Este documento describe que componentes aplicar y como estructurarlos, pero los valores exactos estan en ese archivo CSS.
+
+**Colores principales del diseno:**
+- Morado primario: `#e040fb` (dark) / `#d933c7` (light)
+- Violeta secundario: `#7c4dff` (dark) / `#6556e6` (light)
+- Cian: `#00bcd4` (dark) / `#0097a7` (light)
+- Fondo oscuro: `#0a0a0f`
+- Tarjeta oscura: `#1a1a24`
+- Texto principal: `#ffffff`
+- Texto secundario: `rgba(255,255,255,0.75)`
+
+**Estetica general:**
+- Dark theme premium con acentos neon en magenta, violeta y cian.
+- Bordes redondeados (12px-24px).
+- Sombras profundas y sutiles.
+- Gradientes suaves en textos importantes.
+- Animaciones suaves y elegantes (0.3s-0.4s ease).
+- Tipografia display con Bebas Neue, cuerpo con Poppins.
+- Navbar flotante tipo pastilla (pill) centrada.
+- Hero con nebulosa 3D WebGL de fondo.
+- Tarjetas con hover que eleva y brilla.

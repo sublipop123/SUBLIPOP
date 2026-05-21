@@ -1,0 +1,697 @@
+window.INITIAL_DB = {
+  "config": {
+    "siteName": "Subli Pop",
+    "theme": "dark",
+    "adminUser": "sublipop",
+    "adminPassword": "Lasec123"
+  },
+  "plantillas": {
+    "tazas": {
+      "nombre": "Tazas",
+      "campos": [
+        "capacidad",
+        "medidas",
+        "areaImpresion",
+        "colorBase",
+        "acabado",
+        "material"
+      ]
+    },
+    "tarros": {
+      "nombre": "Tarros y Vasos",
+      "campos": [
+        "capacidad",
+        "medidas",
+        "material",
+        "tipoVaso"
+      ]
+    },
+    "textiles": {
+      "nombre": "Textiles",
+      "campos": [
+        "tallas",
+        "medidas",
+        "material",
+        "areaImpresion"
+      ]
+    },
+    "accesorios": {
+      "nombre": "Accesorios",
+      "campos": [
+        "medidas",
+        "material",
+        "tipo"
+      ]
+    },
+    "hogar": {
+      "nombre": "Hogar",
+      "campos": [
+        "medidas",
+        "material",
+        "tipo"
+      ]
+    }
+  },
+  "usuarios": [],
+  "categorias": [
+    {
+      "id": "tazas",
+      "nombre": "Tazas",
+      "icon": "☕"
+    },
+    {
+      "id": "tarros",
+      "nombre": "Tarros y Vasos",
+      "icon": "🫙"
+    },
+    {
+      "id": "termos",
+      "nombre": "Termos",
+      "icon": "💧"
+    },
+    {
+      "id": "textiles",
+      "nombre": "Textiles",
+      "icon": "👕"
+    },
+    {
+      "id": "accesorios",
+      "nombre": "Accesorios",
+      "icon": "🧢"
+    }
+  ],
+  "productos": [
+    {
+      "nombre": "Tazas Clásica",
+      "categoria": "tazas",
+      "precio": 120,
+      "stock": 10,
+      "material": "Cerámica Brillante (Blanco)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "areaImpresion": "21 x 9.5 cm",
+      "medidas": "8.3 cm x 9 cm",
+      "activo": true,
+      "id": 1777409668441
+    },
+    {
+      "nombre": "Tazas Fondo de Color",
+      "categoria": "tazas",
+      "precio": 150,
+      "stock": 10,
+      "material": "Cerámica Brillante (Rojo, Naranja, Verde, Azul, Amarillo, Rosa)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "areaImpresion": "21 x 9.5 cm",
+      "medidas": "8.3 cm x 9 cm",
+      "activo": true,
+      "id": 1777409668442
+    },
+    {
+      "nombre": "Tazas Asa de Corazón",
+      "categoria": "tazas",
+      "precio": 130,
+      "stock": 10,
+      "material": "Cerámica Brillante (Blanco)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "areaImpresion": "21 x 9.5 cm",
+      "medidas": "8.3 cm x 9 cm",
+      "activo": true,
+      "id": 1777409668443
+    },
+    {
+      "nombre": "Tazas Asa Corazón Fondo de Color",
+      "categoria": "tazas",
+      "precio": 160,
+      "stock": 10,
+      "material": "Cerámica Mate (Azul, Amarillo, Naranja, Verde, Rojo, Rosa)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "areaImpresion": "21 x 9.5 cm",
+      "medidas": "8.3 cm x 9 cm",
+      "activo": true,
+      "id": 1777409668444
+    },
+    {
+      "nombre": "Tazas Dúo Asa de Corazón",
+      "categoria": "tazas",
+      "precio": 350,
+      "stock": 10,
+      "material": "Cerámica Brillante (Blanco)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "areaImpresion": "21 x 9.5 cm",
+      "medidas": "8.3 cm x 9 cm",
+      "activo": true,
+      "id": 1777409668445
+    },
+    {
+      "nombre": "Tazas Mágica Clásica",
+      "categoria": "tazas",
+      "precio": 160,
+      "stock": 10,
+      "material": "Cerámica Mate (Blanco y Negro)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "areaImpresion": "21 x 9.5 cm",
+      "medidas": "8.3 cm x 9 cm",
+      "activo": true,
+      "id": 1777409668446
+    },
+    {
+      "nombre": "Tazas Mágica Fondo de Color",
+      "categoria": "tazas",
+      "precio": 190,
+      "stock": 10,
+      "material": "Cerámica Mate (Verde, Rojo, Rosa, Naranja, Amarillo, Azul)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "areaImpresion": "21 x 9.5 cm",
+      "medidas": "8.3 cm x 9 cm",
+      "activo": true,
+      "id": 1777409668447
+    },
+    {
+      "nombre": "Tazas Mágica Asa Corazón",
+      "categoria": "tazas",
+      "precio": 190,
+      "stock": 10,
+      "material": "Cerámica Mate (Blanco y Negro)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "areaImpresion": "21 x 9.5 cm",
+      "medidas": "8.3 cm x 9 cm",
+      "activo": true,
+      "id": 1777409668448
+    },
+    {
+      "nombre": "Tazas Mágica con DTF UV",
+      "categoria": "tazas",
+      "precio": 260,
+      "stock": 10,
+      "material": "Cerámica Mate (Blanco y Negro)",
+      "tecnica": "Sublimación con DTF UV",
+      "capacidad": "11 oz",
+      "areaImpresion": "21 x 9.5 cm",
+      "medidas": "8.3 cm x 9 cm",
+      "descripcion": "Nota: Si desea taza mágica con fondo de color el costo aumenta +$30.",
+      "activo": true,
+      "id": 1777409668449
+    },
+    {
+      "nombre": "Taza Diamantada Mágica",
+      "categoria": "tazas",
+      "precio": 197,
+      "stock": 10,
+      "material": "Cerámica Mate (Blanco y Negro)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "areaImpresion": "21 x 9.5 cm",
+      "medidas": "8.3 cm x 9 cm",
+      "activo": true,
+      "id": 1777409668450
+    },
+    {
+      "nombre": "Tazas con DTF UV (Solo Impresión)",
+      "categoria": "tazas",
+      "precio": 150,
+      "stock": 10,
+      "material": "Cerámica (Brillante, mate, diamantado, aperlado, etc)",
+      "tecnica": "Sublimación con DTF UV",
+      "descripcion": "Precio solo del diseño y estampado. El precio total depende de la taza.",
+      "activo": true,
+      "id": 1777409668451
+    },
+    {
+      "nombre": "Taza Blanca 12oz",
+      "categoria": "tazas",
+      "precio": 150,
+      "stock": 10,
+      "material": "Cerámica Brillante (Blanco)",
+      "tecnica": "Sublimación",
+      "capacidad": "12 oz",
+      "areaImpresion": "14 x 8 cm",
+      "medidas": "8 cm x 9 cm",
+      "activo": true,
+      "id": 1777409668452
+    },
+    {
+      "nombre": "Tazas Largas",
+      "categoria": "tazas",
+      "precio": 160,
+      "stock": 10,
+      "material": "Cerámica Brillante (Blanco)",
+      "tecnica": "Sublimación",
+      "capacidad": "15 oz",
+      "areaImpresion": "21 x 10.5 cm",
+      "medidas": "8.3 cm x 11 cm",
+      "activo": true,
+      "id": 1777409668453
+    },
+    {
+      "nombre": "Tazas Largas Fondo de Color",
+      "categoria": "tazas",
+      "precio": 180,
+      "stock": 10,
+      "material": "Cerámica Brillante (Rojo, Naranja, Verde, Azul, Amarillo, Rosa)",
+      "tecnica": "Sublimación",
+      "capacidad": "15 oz",
+      "areaImpresion": "21 x 10.5 cm",
+      "medidas": "8.3 cm x 11 cm",
+      "activo": true,
+      "id": 1777409668454
+    },
+    {
+      "nombre": "Tazas Largas Mágicas",
+      "categoria": "tazas",
+      "precio": 210,
+      "stock": 10,
+      "material": "Cerámica Mate (Blanco y Negro)",
+      "tecnica": "Sublimación",
+      "capacidad": "15 oz",
+      "areaImpresion": "21 x 10.5 cm",
+      "medidas": "8.3 cm x 11 cm",
+      "activo": true,
+      "id": 1777409668455
+    },
+    {
+      "nombre": "Tazas Cónicas Clásicas",
+      "categoria": "tazas",
+      "precio": 140,
+      "stock": 10,
+      "material": "Cerámica Brillante (Blanco)",
+      "tecnica": "Sublimación",
+      "capacidad": "12 oz",
+      "areaImpresion": "22 x 10 cm",
+      "medidas": "7 cm x 10 cm",
+      "activo": true,
+      "id": 1777409668456
+    },
+    {
+      "nombre": "Tazas Cónicas Fondo de Color",
+      "categoria": "tazas",
+      "precio": 160,
+      "stock": 10,
+      "material": "Cerámica Brillante (Rosa, Rojo, Amarillo, Azul, Verde, Naranja)",
+      "tecnica": "Sublimación",
+      "capacidad": "12 oz",
+      "areaImpresion": "22 x 10 cm",
+      "medidas": "7 cm x 10 cm",
+      "activo": true,
+      "id": 1777409668457
+    },
+    {
+      "nombre": "Tazas Cónicas Mágicas",
+      "categoria": "tazas",
+      "precio": 180,
+      "stock": 10,
+      "material": "Cerámica Brillante (Blanco y Negro)",
+      "tecnica": "Sublimación",
+      "capacidad": "12 oz",
+      "areaImpresion": "22 x 10 cm",
+      "medidas": "7 cm x 10 cm",
+      "activo": true,
+      "id": 1777409668458
+    },
+    {
+      "nombre": "Taza Cónica Alta",
+      "categoria": "tazas",
+      "precio": 180,
+      "stock": 10,
+      "material": "Cerámica Brillante (Blanco)",
+      "tecnica": "Sublimación",
+      "capacidad": "17 oz",
+      "areaImpresion": "23 x 15 cm",
+      "medidas": "8.5 cm x 15 cm",
+      "activo": true,
+      "id": 1777409668459
+    },
+    {
+      "nombre": "Tazas Cónicas Altas Mágicas",
+      "categoria": "tazas",
+      "precio": 220,
+      "stock": 10,
+      "material": "Cerámica Brillante (Blanco y Negro)",
+      "tecnica": "Sublimación",
+      "capacidad": "17 oz",
+      "areaImpresion": "23 x 15 cm",
+      "medidas": "8.5 cm x 15 cm",
+      "activo": true,
+      "id": 1777409668460
+    },
+    {
+      "nombre": "Taza con Cuchara",
+      "categoria": "tazas",
+      "precio": 330,
+      "stock": 10,
+      "material": "Cerámica Brillante (Fondo: Rosa, Rojo, Amarillo, Azul, Verde, Naranja)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "medidas": "8.5 cm x 11 cm",
+      "activo": true,
+      "id": 1777409668461
+    },
+    {
+      "nombre": "Tazas con Cuchara Mágicas",
+      "categoria": "tazas",
+      "precio": 350,
+      "stock": 10,
+      "material": "Cerámica Brillante (Fondo: Rosa, Rojo, Amarillo, Azul, Verde, Naranja)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "medidas": "8.5 cm x 11 cm",
+      "activo": true,
+      "id": 1777409668462
+    },
+    {
+      "nombre": "Taza Satinada",
+      "categoria": "tazas",
+      "precio": 200,
+      "stock": 10,
+      "material": "Cristal Mate Satinado",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "medidas": "8.5 cm x 11 cm",
+      "activo": true,
+      "id": 1777409668463
+    },
+    {
+      "nombre": "Tazas Satinadas Base de Color",
+      "categoria": "tazas",
+      "precio": 230,
+      "stock": 10,
+      "material": "Cristal Brillante (Base: Rosa, Rojo, Amarillo, Azul, Verde, Naranja)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "medidas": "8.5 cm x 11 cm",
+      "activo": true,
+      "id": 1777409668464
+    },
+    {
+      "nombre": "Taza de Cristal Transparente",
+      "categoria": "tazas",
+      "precio": 200,
+      "stock": 10,
+      "material": "Cristal Brillante Transparente",
+      "tecnica": "Sublimación o DTF UV",
+      "capacidad": "11 oz",
+      "medidas": "8.5 cm x 11 cm",
+      "descripcion": "$290 MXN DTF UV, $200 MXN Sublimada",
+      "activo": true,
+      "id": 1777409668465
+    },
+    {
+      "nombre": "Tazas de Acero Esmaltada",
+      "categoria": "tazas",
+      "precio": 180,
+      "stock": 10,
+      "material": "Acero inoxidable Brillante (Blanca)",
+      "tecnica": "Sublimación",
+      "capacidad": "12 oz",
+      "medidas": "8 cm x 8 cm",
+      "activo": true,
+      "id": 1777409668466
+    },
+    {
+      "nombre": "Taza Color Metalizado",
+      "categoria": "tazas",
+      "precio": 230,
+      "stock": 10,
+      "material": "Cerámica Brillante Metalizado (Oro, Plata, Bronce, Azul, Rosa)",
+      "tecnica": "Sublimación",
+      "capacidad": "12 oz",
+      "medidas": "8.3 cm x 11 cm",
+      "activo": true,
+      "id": 1777409668467
+    },
+    {
+      "nombre": "Tazas Aperladas",
+      "categoria": "tazas",
+      "precio": 230,
+      "stock": 10,
+      "material": "Cerámica Mate (Base: Rosa, azul, plata, oro, blanco)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "medidas": "8.3 cm x 11 cm",
+      "activo": true,
+      "id": 1777409668468
+    },
+    {
+      "nombre": "Taza Diamantada",
+      "categoria": "tazas",
+      "precio": 250,
+      "stock": 10,
+      "material": "Cerámica Mate Diamantado (Rosa, Azul, Oro, Plata, Bronce)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "medidas": "8.3 cm x 11 cm",
+      "activo": true,
+      "id": 1777409668469
+    },
+    {
+      "nombre": "Tazas de Color con Ventana",
+      "categoria": "tazas",
+      "precio": 230,
+      "stock": 10,
+      "material": "Cerámica Brillante (Varios Colores)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "medidas": "8.5 cm x 11 cm",
+      "activo": true,
+      "id": 1777409668470
+    },
+    {
+      "nombre": "Taza Fotoluminiscente",
+      "categoria": "tazas",
+      "precio": 280,
+      "stock": 10,
+      "material": "Cerámica Brillante (Blanco)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "medidas": "8.5 cm x 11 cm",
+      "activo": true,
+      "id": 1777409668471
+    },
+    {
+      "nombre": "Tazas Neon",
+      "categoria": "tazas",
+      "precio": 260,
+      "stock": 10,
+      "material": "Cristal Brillante (Base: Rosa, Rojo, Amarillo, Azul, Verde, Naranja)",
+      "tecnica": "Sublimación",
+      "capacidad": "11 oz",
+      "medidas": "8.3 cm x 11 cm",
+      "activo": true,
+      "id": 1777409668472
+    },
+    {
+      "nombre": "Tarro Transparente",
+      "categoria": "tarros",
+      "precio": 180,
+      "stock": 10,
+      "material": "Vidrio Brillante Transparente",
+      "tecnica": "Sublimación o DTF UV",
+      "capacidad": "16 oz / 473 ml",
+      "descripcion": "$270 MXN DTF UV, $180 MXN Sublimado",
+      "activo": true,
+      "id": 1777409668473
+    },
+    {
+      "nombre": "Tarro Cervecero Satinado",
+      "categoria": "tarros",
+      "precio": 190,
+      "stock": 10,
+      "material": "Vidrio Satinado Mate",
+      "tecnica": "Sublimación o DTF UV",
+      "capacidad": "16 oz / 473 ml",
+      "descripcion": "$190 MXN Sublimado, $220 MXN DTF UV",
+      "activo": true,
+      "id": 1777409668474
+    },
+    {
+      "nombre": "Tequilero Transparente",
+      "categoria": "tarros",
+      "precio": 45,
+      "stock": 10,
+      "material": "Vidrio Brillante Transparente",
+      "tecnica": "Vinil adhesivo",
+      "descripcion": "Mínimo de compra: 30pz",
+      "activo": true,
+      "id": 1777409668475
+    },
+    {
+      "nombre": "Tequilero Satinado",
+      "categoria": "tarros",
+      "precio": 45,
+      "stock": 10,
+      "material": "Vidrio Satinado Mate",
+      "tecnica": "Sublimación",
+      "capacidad": "16 oz / 473 ml",
+      "activo": true,
+      "id": 1777409668476
+    },
+    {
+      "nombre": "Tequilero Blanco",
+      "categoria": "tarros",
+      "precio": 45,
+      "stock": 10,
+      "material": "Vidrio Brillante",
+      "tecnica": "Sublimación",
+      "activo": true,
+      "id": 1777409668477
+    },
+    {
+      "nombre": "Vaso Highball Esmerilado",
+      "categoria": "tarros",
+      "precio": 150,
+      "stock": 10,
+      "material": "Vidrio Satinado Mate",
+      "tecnica": "Sublimación",
+      "capacidad": "16 oz / 473 ml",
+      "activo": true,
+      "id": 1777409668478
+    },
+    {
+      "nombre": "Vasos (Tipo Cafetería con Tapa)",
+      "categoria": "tarros",
+      "precio": 42,
+      "stock": 10,
+      "material": "Plástico Brillante o Mate (Blanco y Negro)",
+      "tecnica": "Vinil adhesivo",
+      "capacidad": "12 oz / 24 oz",
+      "medidas": "12 oz (5x10cm) / 24 oz (8x15cm)",
+      "activo": true,
+      "id": 1777409668479
+    },
+    {
+      "nombre": "Termos",
+      "categoria": "termos",
+      "precio": 87,
+      "stock": 10,
+      "material": "Cerámica o Plástico",
+      "tecnica": "Serigrafía o Sublimación",
+      "capacidad": "800 ml",
+      "areaImpresion": "15 x 20 cm",
+      "descripcion": "Conserva bebidas frías o calientes",
+      "activo": true,
+      "id": 1777409668480
+    },
+    {
+      "nombre": "Tote Bags",
+      "categoria": "textiles",
+      "precio": 52,
+      "stock": 10,
+      "material": "Tela de manta/loneta 100% algodón",
+      "tecnica": "Serigrafía",
+      "medidas": "35 cm x 40 cm",
+      "descripcion": "Venta de Mayoreo a partir de 25 piezas",
+      "activo": true,
+      "id": 1777409668481
+    },
+    {
+      "nombre": "Playera Básica Algodón",
+      "categoria": "textiles",
+      "precio": 250,
+      "stock": 10,
+      "material": "100% Algodón",
+      "tecnica": "Sublimación / DTF",
+      "descripcion": "Precio $250-$280. Corte Clásico unisex. Tallas: CH, M, G, XG",
+      "activo": true,
+      "id": 1777409668482
+    },
+    {
+      "nombre": "Playera Básica Poliéster",
+      "categoria": "textiles",
+      "precio": 200,
+      "stock": 10,
+      "material": "100% Poliéster (Tacto algodón)",
+      "tecnica": "Sublimación",
+      "descripcion": "Precio $200-$250. Corte Clásico unisex. Tallas: CH, M, G, XG",
+      "activo": true,
+      "id": 1777409668483
+    },
+    {
+      "nombre": "Sudadera",
+      "categoria": "textiles",
+      "precio": 480,
+      "stock": 10,
+      "material": "100% Algodón",
+      "tecnica": "DTF / Serigrafía",
+      "descripcion": "Precio $480-$550. Corte Clásico unisex. Tallas: CH, M, G, XG",
+      "activo": true,
+      "id": 1777409668484
+    },
+    {
+      "nombre": "Ropa Interior Personalizada",
+      "categoria": "textiles",
+      "precio": 190,
+      "stock": 10,
+      "material": "100% Algodón",
+      "tecnica": "Sublimación o DTF Textil",
+      "activo": true,
+      "id": 1777409668485
+    },
+    {
+      "nombre": "Calcetines Personalizados",
+      "categoria": "textiles",
+      "precio": 90,
+      "stock": 10,
+      "material": "100% Algodón",
+      "tecnica": "Sublimación o DTF Textil",
+      "activo": true,
+      "id": 1777409668486
+    },
+    {
+      "nombre": "Gorra Visera Plana",
+      "categoria": "accesorios",
+      "precio": 250,
+      "stock": 10,
+      "material": "100% Algodón",
+      "tecnica": "DTF Textil",
+      "activo": true,
+      "id": 1777409668487
+    },
+    {
+      "nombre": "Gorra Blanca y Red de Color",
+      "categoria": "accesorios",
+      "precio": 150,
+      "stock": 10,
+      "material": "100% Poliéster",
+      "tecnica": "Sublimación",
+      "activo": true,
+      "id": 1777409668488
+    },
+    {
+      "nombre": "Funda de Cojín",
+      "categoria": "accesorios",
+      "precio": 180,
+      "stock": 10,
+      "material": "100% Poliéster",
+      "tecnica": "Sublimación",
+      "activo": true,
+      "id": 1777409668489
+    },
+    {
+      "nombre": "Pantuflas",
+      "categoria": "accesorios",
+      "precio": 150,
+      "stock": 10,
+      "material": "100% Poliéster",
+      "tecnica": "Sublimación",
+      "activo": true,
+      "id": 1777409668490
+    }
+  ],
+  "topPromocionar": [],
+  "tickets": [],
+  "estadisticas": {
+    "visitasTotales": 12540,
+    "visitasMes": 1832,
+    "pedidosMes": 127,
+    "ingresosMes": 85600,
+    "clientesRegistrados": 847
+  },
+  "modelos3d": [],
+  "modelos3dSeleccionados": []
+}

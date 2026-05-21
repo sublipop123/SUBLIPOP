@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pkill -f \"python3 -m http.server 8765\")",
+      "Bash(identify /home/animaxvl/Documentos/SOFTME/LOGOTIPOS/LOGO_BLANCO.png)",
+      "Bash(python3 *)",
+      "Bash(xargs ls *)",
+      "Bash(xxd)",
+      "Bash(sed -i '2578s/var\\(--text-on-primary\\)/var\\(--text-primary\\)/' /home/animaxvl/Documentos/SOFTME/index.html)",
+      "Bash(sed -i '2581s/var\\(--text-on-primary\\)/var\\(--text-primary\\)/' /home/animaxvl/Documentos/SOFTME/index.html)",
+      "Bash(sed -i '2585s/var\\(--text-on-primary\\)/var\\(--text-primary\\)/' /home/animaxvl/Documentos/SOFTME/index.html)",
+      "Bash(sed -i '2588s/var\\(--text-on-primary\\)/var\\(--text-primary\\)/' /home/animaxvl/Documentos/SOFTME/index.html)",
+      "Bash(awk *)",
+      "WebFetch(domain:mug3d.com)",
+      "WebSearch",
+      "Bash(node *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git branch *)",
+      "Bash(git remote *)",
+      "Bash(git config *)"
+    ]
+  }
+}
