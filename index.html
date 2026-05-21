@@ -4245,7 +4245,8 @@
     <script src="data/database.js"></script>
     <script>
         // Database and Cart State
-        let db = { productos: [], usuarios: [], tickets: [] };
+        window.db = { productos: [], usuarios: [], tickets: [] };
+        let db = window.db;
         let cart = [];
         let currentUser = null;
 
@@ -4363,13 +4364,6 @@
             if (!db.usuarios) db.usuarios = [];
             if (!db.tickets) db.tickets = [];
 
-            const user = localStorage.getItem('sublipop_user');
-            if (user) {
-                currentUser = JSON.parse(user);
-                // Show "My Orders" button
-                const btn = document.getElementById('myOrdersBtn');
-                if (btn) btn.style.display = '';
-            }
             const cartStr = localStorage.getItem('sublipop_cart');
             if (cartStr) {
                 cart = JSON.parse(cartStr);
@@ -4381,6 +4375,29 @@
             // Render admin-selected 3D models if section is already visible
             if (window._3dModelsRendered) renderSelected3DModels();
         }
+
+        // Firebase Auth state listener (replaces localStorage user session)
+        window.firebaseAuth.onAuthStateChanged(async (firebaseUser) => {
+            if (firebaseUser) {
+                // Look up extra profile data in Firestore
+                try {
+                    const doc = await window.collections.usuarios.doc(firebaseUser.uid).get();
+                    if (doc.exists) {
+                        currentUser = { id: firebaseUser.uid, email: firebaseUser.email, ...doc.data() };
+                    } else {
+                        currentUser = { id: firebaseUser.uid, email: firebaseUser.email, nombre: firebaseUser.displayName || 'Usuario' };
+                    }
+                } catch (e) {
+                    currentUser = { id: firebaseUser.uid, email: firebaseUser.email, nombre: firebaseUser.displayName || 'Usuario' };
+                }
+                document.getElementById('myOrdersBtn').style.display = '';
+                document.getElementById('loginNavBtn').textContent = currentUser.nombre ? currentUser.nombre.split(' ')[0] : 'Usuario';
+            } else {
+                currentUser = null;
+                document.getElementById('myOrdersBtn').style.display = 'none';
+                document.getElementById('loginNavBtn').textContent = 'Login';
+            }
+        });
 
         // Save database to localStorage
         async function saveDB() {
@@ -4589,8 +4606,7 @@
 
         function processOrderStep1() {
             if (currentUser) {
-                // User already logged in, skip verification
-                // Instead of direct finalizeOrder, show custom confirmation
+                // User already logged in, skip to confirmation
                 showFinalConfirm();
                 return;
             }
@@ -4604,54 +4620,13 @@
             if (!email || !email.includes('@')) { alert('Por favor ingresa un correo electrónico válido'); return; }
             if (!phone) { alert('Por favor ingresa tu teléfono'); return; }
 
-            // Check if user already exists
-            const existingUser = db.usuarios.find(u => u.email.toLowerCase() === email.toLowerCase());
-            if (existingUser) {
-                // User already registered, log them in and proceed
-                currentUser = existingUser;
-                localStorage.setItem('sublipop_user', JSON.stringify(currentUser));
-                document.getElementById('myOrdersBtn').style.display = '';
-                finalizeOrder(existingUser.nombre, existingUser.email, existingUser.telefono);
-                return;
-            }
-
-            // New user: generate verification code
-            pendingVerificationCode = String(Math.floor(1000 + Math.random() * 9000));
+            // Guest checkout: store order data and proceed to confirmation
             pendingOrderData = { name, email, phone, notes };
-
-            // Show verification step
-            document.getElementById('cartOrderForm').style.display = 'none';
-            document.getElementById('cartVerifyCode').style.display = 'block';
-            document.getElementById('verifyEmailDisplay').textContent = email;
-            document.getElementById('simulatedCodeValue').textContent = pendingVerificationCode;
-            document.getElementById('verifyCodeInput').value = '';
-            document.getElementById('verifyCodeInput').focus();
+            showFinalConfirm();
         }
 
         function verifyCode() {
-            const inputCode = document.getElementById('verifyCodeInput').value.trim();
-            if (inputCode !== pendingVerificationCode) {
-                showToast('Código incorrecto. Inténtalo de nuevo.', 'error');
-                return;
-            }
-
-            // Code verified! Create user account
-            const newUser = {
-                id: Date.now(),
-                nombre: pendingOrderData.name,
-                email: pendingOrderData.email,
-                telefono: pendingOrderData.phone,
-                verificado: true,
-                createdAt: new Date().toISOString()
-            };
-
-            db.usuarios.push(newUser);
-            currentUser = newUser;
-            localStorage.setItem('sublipop_user', JSON.stringify(currentUser));
-            document.getElementById('myOrdersBtn').style.display = '';
-            updateLoginButton();
-
-            // Now show final confirm
+            // Legacy verification removed; orders now use guest checkout or Firebase Auth login
             showFinalConfirm();
         }
 
@@ -4667,7 +4642,14 @@
             // Guard against double-click
             const btn = document.querySelector('#cartFinalConfirm .btn-primary');
             if (btn) btn.disabled = true;
-            finalizeOrder(currentUser.nombre, currentUser.email, currentUser.telefono);
+            if (currentUser) {
+                finalizeOrder(currentUser.nombre, currentUser.email, currentUser.telefono);
+            } else if (pendingOrderData) {
+                finalizeOrder(pendingOrderData.name, pendingOrderData.email, pendingOrderData.phone);
+            } else {
+                alert('Por favor ingresa tus datos de contacto');
+                if (btn) btn.disabled = false;
+            }
         }
 
         async function finalizeOrder(clientName, clientEmail, clientPhone) {
@@ -4879,14 +4861,6 @@
         let regPendingCode = null;
         let regPendingData = null;
 
-        async function hashPassword(password) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(password + '_sublipop_salt_2024');
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
         function showLoginModal() {
             const modal = document.getElementById('loginModal');
             modal.style.display = 'block';
@@ -4932,19 +4906,12 @@
 
             if (!email || !password) { alert('Completa todos los campos'); return; }
 
-            const hashedPw = await hashPassword(password);
-            const user = db.usuarios.find(u => u.email.toLowerCase() === email.toLowerCase() && u.passwordHash === hashedPw);
-            
-            if (!user) { 
-                alert('Email o contraseña incorrectos'); 
-                return; 
+            try {
+                await window.firebaseAuth.signInWithEmailAndPassword(email, password);
+                closeLoginModal();
+            } catch (error) {
+                alert(getAuthErrorMessage(error.code));
             }
-
-            currentUser = user;
-            localStorage.setItem('sublipop_user', JSON.stringify(currentUser));
-            document.getElementById('myOrdersBtn').style.display = '';
-            document.getElementById('loginNavBtn').textContent = user.nombre.split(' ')[0];
-            closeLoginModal();
         }
 
         async function doUserRegister() {
@@ -4953,72 +4920,74 @@
             const phone = document.getElementById('regPhoneField').value.trim();
             const password = document.getElementById('regPasswordField').value;
             const passwordConfirm = document.getElementById('regPasswordConfirm').value;
+            const avatar = document.getElementById('regAvatarField').value;
 
             if (!name || !email || !phone || !password) { alert('Completa todos los campos'); return; }
             if (!email.includes('@')) { alert('Ingresa un email válido'); return; }
             if (password.length < 6) { alert('La contraseña debe tener al menos 6 caracteres'); return; }
             if (password !== passwordConfirm) { alert('Las contraseñas no coinciden'); return; }
 
-            // Check if email exists
-            if (db.usuarios.find(u => u.email.toLowerCase() === email.toLowerCase())) {
-                alert('Este correo ya está registrado. Inicia sesión.');
+            try {
+                const cred = await window.firebaseAuth.createUserWithEmailAndPassword(email, password);
+                const uid = cred.user.uid;
+
+                // Save extra profile to Firestore
+                const userData = {
+                    id: uid,
+                    nombre: name,
+                    email: email,
+                    telefono: phone,
+                    avatar: avatar || 'assets/avatars/avatar1.png',
+                    verificado: false,
+                    createdAt: new Date().toISOString()
+                };
+                await window.collections.usuarios.doc(uid).set(userData);
+                db.usuarios.push(userData);
+                await saveDB();
+
+                // Send real email verification
+                await cred.user.sendEmailVerification();
+                alert('Cuenta creada. Revisa tu correo para verificar tu email antes de iniciar sesión.');
+
+                document.getElementById('regNameField').value = '';
+                document.getElementById('regEmailField').value = '';
+                document.getElementById('regPhoneField').value = '';
+                document.getElementById('regPasswordField').value = '';
+                document.getElementById('regPasswordConfirm').value = '';
                 switchLoginTab('login');
-                return;
+            } catch (error) {
+                alert(getAuthErrorMessage(error.code));
             }
-
-            const hashedPw = await hashPassword(password);
-            const avatar = document.getElementById('regAvatarField').value;
-            regPendingCode = String(Math.floor(1000 + Math.random() * 9000));
-            regPendingData = { name, email, phone, passwordHash: hashedPw, avatar };
-
-            // Show verification
-            document.getElementById('registerFormPanel').style.display = 'none';
-            document.getElementById('regVerifyPanel').style.display = 'block';
-            document.getElementById('regCodeDisplay').textContent = regPendingCode;
-            document.getElementById('regCodeInput').value = '';
-            document.getElementById('regCodeInput').focus();
         }
 
+        // Legacy verify code function – no longer needed with Firebase Auth email verification
         async function verifyRegCode() {
-            const code = document.getElementById('regCodeInput').value.trim();
-            if (code !== regPendingCode) {
-                alert('Código incorrecto. Inténtalo de nuevo.');
-                return;
-            }
-
-            // Create user
-            const newUser = {
-                id: Date.now(),
-                nombre: regPendingData.name,
-                email: regPendingData.email,
-                telefono: regPendingData.phone,
-                passwordHash: regPendingData.passwordHash,
-                avatar: regPendingData.avatar,
-                verificado: true,
-                createdAt: new Date().toISOString()
-            };
-
-            db.usuarios.push(newUser);
-            await saveDB();
-
-            currentUser = newUser;
-            localStorage.setItem('sublipop_user', JSON.stringify(currentUser));
-            document.getElementById('myOrdersBtn').style.display = '';
-            document.getElementById('loginNavBtn').textContent = newUser.nombre.split(' ')[0];
-
-            regPendingCode = null;
-            regPendingData = null;
-
-            alert('¡Cuenta creada exitosamente!');
-            closeLoginModal();
+            alert('El registro ahora usa verificación por correo electrónico real. Revisa tu inbox.');
         }
 
-        function doUserLogout() {
+        async function doUserLogout() {
+            try {
+                await window.firebaseAuth.signOut();
+            } catch (e) {
+                console.error(e);
+            }
             currentUser = null;
-            localStorage.removeItem('sublipop_user');
             document.getElementById('myOrdersBtn').style.display = 'none';
             document.getElementById('loginNavBtn').textContent = 'Login';
             closeLoginModal();
+        }
+
+        function getAuthErrorMessage(code) {
+            const messages = {
+                'auth/invalid-email': 'El correo no es válido.',
+                'auth/user-disabled': 'Esta cuenta ha sido deshabilitada.',
+                'auth/user-not-found': 'No existe una cuenta con este correo.',
+                'auth/wrong-password': 'Contraseña incorrecta.',
+                'auth/invalid-credential': 'Credenciales incorrectas. Intenta de nuevo.',
+                'auth/email-already-in-use': 'Este correo ya está registrado. Inicia sesión.',
+                'auth/weak-password': 'La contraseña es muy débil (mínimo 6 caracteres).',
+            };
+            return messages[code] || 'Error: ' + (code || 'desconocido');
         }
 
         // Update login button text on load if user is logged in
@@ -5535,12 +5504,17 @@
 
         async function selectAndSaveAvatar(el, path) {
             currentUser.avatar = path;
-            localStorage.setItem('sublipop_user', JSON.stringify(currentUser));
 
-            const userIndex = db.usuarios.findIndex(u => u.id === currentUser.id);
+            const userIndex = db.usuarios.findIndex(u => u.id === currentUser.id || u.email === currentUser.email);
             if (userIndex !== -1) {
                 db.usuarios[userIndex].avatar = path;
                 await saveDB();
+            }
+            // Also sync avatar to Firestore profile
+            try {
+                await window.collections.usuarios.doc(currentUser.id).update({ avatar: path });
+            } catch (e) {
+                console.error('Error updating avatar in Firestore:', e);
             }
 
             document.getElementById('loggedInUserAvatar').style.backgroundImage = `url('${path}')`;
