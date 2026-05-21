@@ -1,6 +1,6 @@
 // Firebase configuration for Subli Pop
 const firebaseConfig = {
-  apiKey: "AIzaSyBvX_n8tedUQBKHRwjC_QK2hMgfuSkml-g",
+  apiKey: "AIzaSyBvX_nBtedUQBKHRwjC_QK2hMgfuSkmL-g",
   authDomain: "sublipop-3ab61.firebaseapp.com",
   projectId: "sublipop-3ab61",
   storageBucket: "sublipop-3ab61.firebasestorage.app",
