@@ -1,47 +1,50 @@
 // Firebase configuration for Subli Pop
-const firebaseConfig = {
-  apiKey: "AIzaSyBvX_nBtedUQBKHRwjC_QK2hMgfuSkmL-g",
-  authDomain: "sublipop-3ab61.firebaseapp.com",
-  projectId: "sublipop-3ab61",
-  storageBucket: "sublipop-3ab61.firebasestorage.app",
-  messagingSenderId: "1041815206193",
-  appId: "1:1041815206193:web:ce172e9195896780fd1810"
-};
+(function() {
+  const firebaseConfig = {
+    apiKey: "AIzaSyBvX_nBtedUQBKHRwjC_QK2hMgfuSkmL-g",
+    authDomain: "sublipop-3ab61.firebaseapp.com",
+    projectId: "sublipop-3ab61",
+    storageBucket: "sublipop-3ab61.firebasestorage.app",
+    messagingSenderId: "1041815206193",
+    appId: "1:1041815206193:web:ce172e9195896780fd1810"
+  };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
 
-// Export services
-const db = firebase.firestore();
-const auth = firebase.auth();
+  // Internal Firestore reference (not exposed to global scope)
+  const _db = firebase.firestore();
+  const _auth = firebase.auth();
 
-// Helper to convert Firestore snapshot to array
-function snapshotToArray(snapshot) {
-  const data = [];
-  snapshot.forEach(doc => {
-    data.push({ id: doc.id, ...doc.data() });
-  });
-  return data;
-}
+  // Expose safe global aliases
+  window.firestoreDB = _db;
+  window.firebaseAuth = _auth;
+  window.collections = {
+    productos: _db.collection('productos'),
+    categorias: _db.collection('categorias'),
+    tickets: _db.collection('tickets'),
+    usuarios: _db.collection('usuarios'),
+    config: _db.collection('config').doc('site'),
+    modelos3d: _db.collection('modelos3d'),
+    modelos3dSeleccionados: _db.collection('config').doc('modelos3dSeleccionados'),
+  };
 
-// Firestore collections reference
-const collections = {
-  productos: db.collection('productos'),
-  categorias: db.collection('categorias'),
-  tickets: db.collection('tickets'),
-  usuarios: db.collection('usuarios'),
-  config: db.collection('config').doc('site'),
-  modelos3d: db.collection('modelos3d'),
-  modelos3dSeleccionados: db.collection('config').doc('modelos3dSeleccionados'),
-};
+  window.snapshotToArray = function(snapshot) {
+    const data = [];
+    snapshot.forEach(doc => {
+      data.push({ id: doc.id, ...doc.data() });
+    });
+    return data;
+  };
 
-// Offline persistence
-if (db.enablePersistence) {
-  db.enablePersistence({ synchronizeTabs: true }).catch(err => {
-    if (err.code === 'failed-precondition') {
-      console.warn('Firestore persistence failed: multiple tabs open');
-    } else if (err.code === 'unimplemented') {
-      console.warn('Firestore persistence not available in this browser');
-    }
-  });
-}
+  // Offline persistence
+  if (_db.enablePersistence) {
+    _db.enablePersistence({ synchronizeTabs: true }).catch(err => {
+      if (err.code === 'failed-precondition') {
+        console.warn('Firestore persistence failed: multiple tabs open');
+      } else if (err.code === 'unimplemented') {
+        console.warn('Firestore persistence not available in this browser');
+      }
+    });
+  }
+})();

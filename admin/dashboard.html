@@ -2746,14 +2746,16 @@
             }
         }
 
-        // Database
-        let db = {
+        // Local app database state (renamed to avoid conflict with Firestore 'db')
+        let appDb = {
             config: { theme: 'dark' },
             categorias: [],
             productos: [],
             tickets: [],
             estadisticas: {}
         };
+        // Keep backward compatibility alias
+        let db = appDb;
 
         // Load database from Firebase Firestore (primary) with localStorage fallback
         async function loadDatabase() {
@@ -2822,19 +2824,17 @@
             try {
                 // Save products to Firestore
                 if (db.productos) {
-                    const batch = db.batch ? db.batch() : null; // Firestore batch
-                    // For simplicity, overwrite each product
                     for (const producto of db.productos) {
-                        await collections.productos.doc(String(producto.id)).set(producto);
+                        await window.collections.productos.doc(String(producto.id)).set(producto);
                     }
                 }
                 if (db.categorias) {
                     for (const cat of db.categorias) {
-                        await collections.categorias.doc(cat.id).set(cat);
+                        await window.collections.categorias.doc(cat.id).set(cat);
                     }
                 }
                 if (db.config) {
-                    await collections.config.set(db.config);
+                    await window.collections.config.set(db.config);
                 }
             } catch (error) {
                 console.error('Error saving to Firestore:', error);
