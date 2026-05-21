@@ -4012,12 +4012,12 @@
 
         // Logout
         async function logout() {
-            await auth.signOut();
+            await window.firebaseAuth.signOut();
             window.location.href = 'login.html';
         }
 
         // Auth Check with Firebase
-        auth.onAuthStateChanged(user => {
+        window.firebaseAuth.onAuthStateChanged(user => {
             if (!user) {
                 window.location.href = 'login.html';
             }
@@ -4061,7 +4061,7 @@
         });
 
         // Init
-        let calendarDate = new Date(); // Start at current month
+        var calendarDate = new Date(); // Start at current month
         loadDatabase();
 
         // === Theme Management ===

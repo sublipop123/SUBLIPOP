@@ -37,14 +37,6 @@
     return data;
   };
 
-  // Offline persistence
-  if (_db.enablePersistence) {
-    _db.enablePersistence({ synchronizeTabs: true }).catch(err => {
-      if (err.code === 'failed-precondition') {
-        console.warn('Firestore persistence failed: multiple tabs open');
-      } else if (err.code === 'unimplemented') {
-        console.warn('Firestore persistence not available in this browser');
-      }
-    });
-  }
+  // Firestore v10 enables IndexedDB persistence by default on web.
+  // Explicit enablePersistence() is deprecated; removed to avoid console warnings.
 })();
