@@ -7,6 +7,11 @@
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="../assets/firebase-config.js"></script>
     <script type="importmap">
     {
       "imports": {
@@ -2750,47 +2755,91 @@
             estadisticas: {}
         };
 
-        // Load database
-        function loadDatabase() {
+        // Load database from Firebase Firestore (primary) with localStorage fallback
+        async function loadDatabase() {
             const stored = localStorage.getItem('sublipop_db');
             let localDb = stored ? JSON.parse(stored) : null;
+            const freshData = window.INITIAL_DB || {};
 
             try {
-                const freshData = window.INITIAL_DB;
-                
-                if (localDb) {
-                    // Merge products: keep local stock, add any new catalog products
-                    const mergedProducts = freshData.productos.map(fp => {
-                        const localP = localDb.productos.find(p => p.id === fp.id);
-                        if (localP) {
-                            // Keep local stock and image changes, update catalog info
-                            return { ...fp, stock: localP.stock, imagen: localP.imagen || fp.imagen, ventas: localP.ventas || 0 };
-                        }
-                        return fp;
-                    });
-                    localDb.productos = mergedProducts;
-                    localDb.categorias = freshData.categorias;
-                    // Ensure arrays exist
-                    if (!localDb.tickets) localDb.tickets = [];
-                    if (!localDb.usuarios) localDb.usuarios = [];
+                // Load from Firestore
+                const [prodSnap, catSnap, configSnap] = await Promise.all([
+                    collections.productos.get().catch(() => null),
+                    collections.categorias.get().catch(() => null),
+                    collections.config.get().catch(() => null),
+                ]);
+
+                const firestoreData = {};
+                if (prodSnap) {
+                    firestoreData.productos = snapshotToArray(prodSnap);
+                }
+                if (catSnap) {
+                    firestoreData.categorias = snapshotToArray(catSnap);
+                }
+                if (configSnap && configSnap.exists) {
+                    firestoreData.config = configSnap.data();
+                }
+
+                if (firestoreData.productos && firestoreData.productos.length > 0) {
+                    db = {
+                        ...freshData,
+                        productos: firestoreData.productos,
+                        categorias: firestoreData.categorias || freshData.categorias || [],
+                        config: firestoreData.config || freshData.config || { theme: 'dark' },
+                        tickets: localDb?.tickets || [],
+                        usuarios: localDb?.usuarios || [],
+                        modelos3d: localDb?.modelos3d || [],
+                        modelos3dSeleccionados: localDb?.modelos3dSeleccionados || [],
+                    };
+                    // Cache to localStorage for offline
+                    localStorage.setItem('sublipop_db', JSON.stringify(db));
+                } else if (localDb) {
                     db = localDb;
                 } else {
-                    db = JSON.parse(JSON.stringify(freshData)); // deep copy
+                    db = JSON.parse(JSON.stringify(freshData));
                     if (!db.tickets) db.tickets = [];
                     if (!db.usuarios) db.usuarios = [];
+                    if (!db.modelos3d) db.modelos3d = [];
+                    if (!db.modelos3dSeleccionados) db.modelos3dSeleccionados = [];
                 }
-                saveDatabase();
                 initApp();
             } catch (error) {
-                console.log('Error loading initial db, using local storage', error);
+                console.error('Error loading from Firestore:', error);
                 if (localDb) {
                     db = localDb;
+                } else {
+                    db = JSON.parse(JSON.stringify(freshData));
+                    if (!db.tickets) db.tickets = [];
+                    if (!db.usuarios) db.usuarios = [];
+                    if (!db.modelos3d) db.modelos3d = [];
+                    if (!db.modelos3dSeleccionados) db.modelos3dSeleccionados = [];
                 }
                 initApp();
             }
         }
 
-        function saveDatabase() {
+        async function saveDatabase() {
+            try {
+                // Save products to Firestore
+                if (db.productos) {
+                    const batch = db.batch ? db.batch() : null; // Firestore batch
+                    // For simplicity, overwrite each product
+                    for (const producto of db.productos) {
+                        await collections.productos.doc(String(producto.id)).set(producto);
+                    }
+                }
+                if (db.categorias) {
+                    for (const cat of db.categorias) {
+                        await collections.categorias.doc(cat.id).set(cat);
+                    }
+                }
+                if (db.config) {
+                    await collections.config.set(db.config);
+                }
+            } catch (error) {
+                console.error('Error saving to Firestore:', error);
+            }
+            // Always save to localStorage as backup
             localStorage.setItem('sublipop_db', JSON.stringify(db));
         }
 
@@ -3962,14 +4011,17 @@
         }
 
         // Logout
-        function logout() {
+        async function logout() {
+            await auth.signOut();
             window.location.href = 'login.html';
         }
 
-        // Auth Check & Listeners
-        if (!sessionStorage.getItem('adminLogged')) {
-            window.location.href = 'login.html';
-        }
+        // Auth Check with Firebase
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                window.location.href = 'login.html';
+            }
+        });
 
         document.getElementById('productCategory').addEventListener('change', (e) => {
             if (!document.getElementById('productId').value) { // only apply template if new product

@@ -7,6 +7,11 @@
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="../assets/firebase-config.js"></script>
     <style>
         :root {
             --primary: #e040fb;
@@ -138,6 +143,13 @@
             box-shadow: 0 10px 30px rgba(224,64,251,0.4);
         }
 
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         .login-error {
             background: rgba(255,82,82,0.1);
             border: 1px solid rgba(255,82,82,0.3);
@@ -163,6 +175,13 @@
         }
 
         .back-link:hover { color: var(--primary); }
+
+        .login-info {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -176,37 +195,64 @@
 
             <form id="loginForm">
                 <div class="form-group">
-                    <label class="form-label">Usuario</label>
-                    <input type="text" class="form-input" id="username" placeholder="Tu usuario" required>
+                    <label class="form-label">Correo electrónico</label>
+                    <input type="email" class="form-input" id="email" placeholder="admin@ejemplo.com" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Contraseña</label>
                     <input type="password" class="form-input" id="password" placeholder="Tu contraseña" required>
                 </div>
-                <button type="submit" class="login-btn">Ingresar</button>
+                <button type="submit" class="login-btn" id="loginBtn">Ingresar</button>
             </form>
 
             <a href="../index.html" class="back-link">← Volver al sitio</a>
+            <p class="login-info">La primera vez puedes usar: <br>admin@sublipop.com / Lasec123</p>
         </div>
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
+        const loginForm = document.getElementById('loginForm');
+        const loginError = document.getElementById('loginError');
+        const loginBtn = document.getElementById('loginBtn');
 
-            // Credenciales hardcodeadas
-            if (user === 'sublipop' && pass === 'Lasec123') {
-                sessionStorage.setItem('adminLogged', 'true');
+        // Check if user is already logged in
+        auth.onAuthStateChanged(user => {
+            if (user) {
                 window.location.href = 'dashboard.html';
-            } else {
-                document.getElementById('loginError').classList.add('show');
-                setTimeout(() => {
-                    document.getElementById('loginError').classList.remove('show');
-                }, 3000);
             }
         });
+
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Verificando...';
+            loginError.classList.remove('show');
+
+            try {
+                await auth.signInWithEmailAndPassword(email, pass);
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                console.error('Login error:', error);
+                loginError.textContent = getErrorMessage(error.code);
+                loginError.classList.add('show');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Ingresar';
+            }
+        });
+
+        function getErrorMessage(code) {
+            const messages = {
+                'auth/invalid-email': 'El correo no es válido.',
+                'auth/user-disabled': 'Esta cuenta ha sido deshabilitada.',
+                'auth/user-not-found': 'No existe una cuenta con este correo.',
+                'auth/wrong-password': 'Contraseña incorrecta.',
+                'auth/invalid-credential': 'Credenciales incorrectas. Intenta de nuevo.',
+            };
+            return messages[code] || 'Error al iniciar sesión. Intenta de nuevo.';
+        }
     </script>
 </body>
 </html>
