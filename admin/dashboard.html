@@ -2765,10 +2765,12 @@
 
             try {
                 // Load from Firestore
-                const [prodSnap, catSnap, configSnap] = await Promise.all([
+                const [prodSnap, catSnap, configSnap, modelSnap, selSnap] = await Promise.all([
                     collections.productos.get().catch(() => null),
                     collections.categorias.get().catch(() => null),
                     collections.config.get().catch(() => null),
+                    collections.modelos3d.get().catch(() => null),
+                    collections.modelos3dSeleccionados.get().catch(() => null),
                 ]);
 
                 const firestoreData = {};
@@ -2781,6 +2783,12 @@
                 if (configSnap && configSnap.exists) {
                     firestoreData.config = configSnap.data();
                 }
+                if (modelSnap) {
+                    firestoreData.modelos3d = snapshotToArray(modelSnap);
+                }
+                if (selSnap && selSnap.exists) {
+                    firestoreData.modelos3dSeleccionados = selSnap.data().ids || [];
+                }
 
                 if (firestoreData.productos && firestoreData.productos.length > 0) {
                     db = {
@@ -2790,8 +2798,8 @@
                         config: firestoreData.config || freshData.config || { theme: 'dark' },
                         tickets: localDb?.tickets || [],
                         usuarios: localDb?.usuarios || [],
-                        modelos3d: localDb?.modelos3d || [],
-                        modelos3dSeleccionados: localDb?.modelos3dSeleccionados || [],
+                        modelos3d: firestoreData.modelos3d || localDb?.modelos3d || [],
+                        modelos3dSeleccionados: firestoreData.modelos3dSeleccionados || localDb?.modelos3dSeleccionados || [],
                     };
                     // Cache to localStorage for offline
                     localStorage.setItem('sublipop_db', JSON.stringify(db));
@@ -2835,6 +2843,24 @@
                 }
                 if (db.config) {
                     await window.collections.config.set(db.config);
+                }
+                if (db.modelos3d) {
+                    for (const modelo of db.modelos3d) {
+                        await window.collections.modelos3d.doc(String(modelo.id)).set(modelo);
+                    }
+                }
+                if (db.modelos3dSeleccionados) {
+                    await window.collections.modelos3dSeleccionados.set({ ids: db.modelos3dSeleccionados });
+                }
+                if (db.tickets) {
+                    for (const ticket of db.tickets) {
+                        await window.collections.tickets.doc(String(ticket.id)).set(ticket);
+                    }
+                }
+                if (db.usuarios) {
+                    for (const usuario of db.usuarios) {
+                        await window.collections.usuarios.doc(String(usuario.id)).set(usuario);
+                    }
                 }
             } catch (error) {
                 console.error('Error saving to Firestore:', error);

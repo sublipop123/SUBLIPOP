@@ -4288,11 +4288,13 @@
 
             try {
                 // Attempt to load from Firestore
-                const [prodSnap, catSnap, modelSnap, selSnap] = await Promise.all([
+                const [prodSnap, catSnap, modelSnap, selSnap, ticketSnap, userSnap] = await Promise.all([
                     collections.productos.get().catch(() => null),
                     collections.categorias.get().catch(() => null),
                     collections.modelos3d.get().catch(() => null),
                     collections.modelos3dSeleccionados.get().catch(() => null),
+                    collections.tickets.get().catch(() => null),
+                    collections.usuarios.get().catch(() => null),
                 ]);
 
                 const firestoreData = {};
@@ -4308,6 +4310,12 @@
                 if (selSnap && selSnap.exists) {
                     firestoreData.modelos3dSeleccionados = selSnap.data().ids || [];
                 }
+                if (ticketSnap) {
+                    firestoreData.tickets = snapshotToArray(ticketSnap);
+                }
+                if (userSnap) {
+                    firestoreData.usuarios = snapshotToArray(userSnap);
+                }
 
                 if (firestoreData.productos && firestoreData.productos.length > 0) {
                     // Use Firestore data
@@ -4317,8 +4325,8 @@
                         categorias: firestoreData.categorias || freshData.categorias || [],
                         modelos3d: firestoreData.modelos3d || [],
                         modelos3dSeleccionados: firestoreData.modelos3dSeleccionados || [],
-                        tickets: localDb?.tickets || [],
-                        usuarios: localDb?.usuarios || [],
+                        tickets: firestoreData.tickets || localDb?.tickets || [],
+                        usuarios: firestoreData.usuarios || localDb?.usuarios || [],
                     };
                     // Sync to localStorage for offline cache
                     localStorage.setItem('sublipop_db', JSON.stringify(db));
@@ -4375,8 +4383,28 @@
         }
 
         // Save database to localStorage
-        function saveDB() {
+        async function saveDB() {
             localStorage.setItem('sublipop_db', JSON.stringify(db));
+            try {
+                // Sync critical data to Firestore for multi-device access
+                if (db.tickets) {
+                    for (const ticket of db.tickets) {
+                        await collections.tickets.doc(String(ticket.id)).set(ticket);
+                    }
+                }
+                if (db.usuarios) {
+                    for (const usuario of db.usuarios) {
+                        await collections.usuarios.doc(String(usuario.id)).set(usuario);
+                    }
+                }
+                if (db.productos) {
+                    for (const producto of db.productos) {
+                        await collections.productos.doc(String(producto.id)).set(producto);
+                    }
+                }
+            } catch (e) {
+                console.error('Error syncing to Firestore:', e);
+            }
         }
 
         // Cross-tab sync: reload catalog when admin changes stock/inventory
@@ -4642,7 +4670,7 @@
             finalizeOrder(currentUser.nombre, currentUser.email, currentUser.telefono);
         }
 
-        function finalizeOrder(clientName, clientEmail, clientPhone) {
+        async function finalizeOrder(clientName, clientEmail, clientPhone) {
             // Native confirm replaced by showFinalConfirm/completeOrderFinal logic
 
             const notes = currentUser
@@ -4709,7 +4737,7 @@
                 }
             });
 
-            saveDB();
+            await saveDB();
 
             // Console log for tracking
             console.group('%c🎫 Ticket Generado Exitosamente', 'color: #4caf50; font-weight: bold; font-size: 1.1em;');
@@ -4951,7 +4979,7 @@
             document.getElementById('regCodeInput').focus();
         }
 
-        function verifyRegCode() {
+        async function verifyRegCode() {
             const code = document.getElementById('regCodeInput').value.trim();
             if (code !== regPendingCode) {
                 alert('Código incorrecto. Inténtalo de nuevo.');
@@ -4971,7 +4999,7 @@
             };
 
             db.usuarios.push(newUser);
-            saveDB();
+            await saveDB();
 
             currentUser = newUser;
             localStorage.setItem('sublipop_user', JSON.stringify(currentUser));
@@ -5505,14 +5533,14 @@
             document.getElementById('avatarPickerModal').style.display = 'flex';
         }
 
-        function selectAndSaveAvatar(el, path) {
+        async function selectAndSaveAvatar(el, path) {
             currentUser.avatar = path;
             localStorage.setItem('sublipop_user', JSON.stringify(currentUser));
 
             const userIndex = db.usuarios.findIndex(u => u.id === currentUser.id);
             if (userIndex !== -1) {
                 db.usuarios[userIndex].avatar = path;
-                saveDB();
+                await saveDB();
             }
 
             document.getElementById('loggedInUserAvatar').style.backgroundImage = `url('${path}')`;
