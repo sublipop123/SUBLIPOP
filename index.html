@@ -1005,7 +1005,7 @@
         @media (max-width: 768px) {
             .mobile-catalog-header { display: block !important; }
             .desktop-only { display: none !important; }
-            .category-prompt { display: flex !important; flex-direction: column; align-items: center; }
+            .category-prompt { display: none; }
             .products-grid-dark { grid-template-columns: repeat(2, 1fr) !important; }
 
             /* Neo morphism pills - mobile specific art style */
@@ -3289,7 +3289,7 @@
     </section>
 
     <!-- Mobile Search & Category Selector -->
-    <div id="mobileCatalogHeader" class="mobile-catalog-header" style="display:none;">
+    <div id="mobileCatalogHeader" class="mobile-catalog-header">
         <!-- Premium Search Bar -->
         <div class="mobile-search-container">
             <div class="mobile-search-wrapper">
@@ -3297,7 +3297,7 @@
                     <circle cx="11" cy="11" r="8"></circle>
                     <path d="m21 21-4.35-4.35"></path>
                 </svg>
-                <input type="text" id="mobileSearchInput" class="mobile-search-input" placeholder="Buscar productos..." oninput="handleMobileSearch(this.value)">
+                <input type="text" id="mobileSearchInput" class="mobile-search-input" placeholder="Buscar productos..." oninput="handleSearch(this.value)">
                 <button class="search-clear" id="searchClearBtn" onclick="clearMobileSearch()">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
@@ -3359,14 +3359,14 @@
                         <circle cx="11" cy="11" r="8"></circle>
                         <path d="m21 21-4.35-4.35"></path>
                     </svg>
-                    <input type="text" id="desktopSearchInput" class="desktop-search-input" placeholder="Buscar productos..." oninput="handleDesktopSearch(this.value)">
+                    <input type="text" id="desktopSearchInput" class="desktop-search-input" placeholder="Buscar productos..." oninput="handleSearch(this.value)">
                 </div>
                 <div class="search-suggestions" id="searchSuggestions"></div>
             </div>
         </div>
 
         <div id="dynamicCatalogContainer"></div>
-        <div id="categoryPrompt" class="category-prompt" style="display:none;">
+        <div id="categoryPrompt" class="category-prompt">
             <div class="prompt-visual">
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="3" width="7" height="7" rx="1"></rect>
@@ -5142,8 +5142,6 @@
         }
 
         // Alias kept for backward compatibility
-        function handleMobileSearch(query) { handleSearch(query); }
-        function handleDesktopSearch(query) { handleSearch(query); }
 
         function clearMobileSearch() {
             const input = document.getElementById('mobileSearchInput');
@@ -5200,12 +5198,10 @@
         }
 
         function filterMobileProducts() {
-            const prompt = document.getElementById('categoryPrompt');
             const container = document.getElementById('dynamicCatalogContainer');
 
-            // If no filter active, show prompt and return to full catalog
+            // If no filter active, show full catalog
             if (!currentMobileCategory && !currentMobileSearch) {
-                if (prompt) prompt.style.display = 'flex';
                 document.querySelectorAll('.category-title[data-cat]').forEach(el => el.style.display = '');
                 document.querySelectorAll('.product-card-wrapper[data-category]').forEach(card => {
                     card.style.display = '';
@@ -5213,8 +5209,6 @@
                 });
                 return;
             }
-
-            if (prompt) prompt.style.display = 'none';
 
             // Build visibility map from db (respects admin hide/show)
             const hiddenIds = new Set();
