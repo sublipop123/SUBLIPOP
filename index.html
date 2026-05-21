@@ -4329,11 +4329,15 @@
                         tickets: firestoreData.tickets || localDb?.tickets || [],
                         usuarios: firestoreData.usuarios || localDb?.usuarios || [],
                     };
+                    window.db = db;
                     // Sync to localStorage for offline cache
                     localStorage.setItem('sublipop_db', JSON.stringify(db));
                 } else if (localDb) {
                     // Fallback to localStorage if Firestore is empty
                     db = localDb;
+                    window.db = db;
+                    // Seed Firestore so data survives cache clearing
+                    await saveDB();
                 } else {
                     // Fallback to initial database
                     db = JSON.parse(JSON.stringify(freshData));
@@ -4341,12 +4345,16 @@
                     if (!db.usuarios) db.usuarios = [];
                     if (!db.modelos3d) db.modelos3d = [];
                     if (!db.modelos3dSeleccionados) db.modelos3dSeleccionados = [];
+                    window.db = db;
+                    await saveDB();
+                    localStorage.setItem('sublipop_db', JSON.stringify(db));
                 }
                 finishLoadDB();
             } catch (error) {
                 console.error('Error loading DB from Firestore:', error);
                 if (localDb) {
                     db = localDb;
+                    window.db = db;
                     finishLoadDB();
                 } else {
                     db = JSON.parse(JSON.stringify(freshData));
@@ -4354,6 +4362,7 @@
                     if (!db.usuarios) db.usuarios = [];
                     if (!db.modelos3d) db.modelos3d = [];
                     if (!db.modelos3dSeleccionados) db.modelos3dSeleccionados = [];
+                    window.db = db;
                     finishLoadDB();
                 }
             }
@@ -4403,7 +4412,7 @@
         async function saveDB() {
             localStorage.setItem('sublipop_db', JSON.stringify(db));
             try {
-                // Sync critical data to Firestore for multi-device access
+                // Sync all data to Firestore for multi-device access and cache survival
                 if (db.tickets) {
                     for (const ticket of db.tickets) {
                         await collections.tickets.doc(String(ticket.id)).set(ticket);
@@ -4418,6 +4427,22 @@
                     for (const producto of db.productos) {
                         await collections.productos.doc(String(producto.id)).set(producto);
                     }
+                }
+                if (db.categorias) {
+                    for (const cat of db.categorias) {
+                        await collections.categorias.doc(String(cat.id)).set(cat);
+                    }
+                }
+                if (db.config) {
+                    await collections.config.set(db.config);
+                }
+                if (db.modelos3d) {
+                    for (const modelo of db.modelos3d) {
+                        await collections.modelos3d.doc(String(modelo.id)).set(modelo);
+                    }
+                }
+                if (db.modelos3dSeleccionados) {
+                    await collections.modelos3dSeleccionados.set({ ids: db.modelos3dSeleccionados });
                 }
             } catch (e) {
                 console.error('Error syncing to Firestore:', e);
@@ -4434,6 +4459,7 @@
                         const freshDb = JSON.parse(stored);
                         if (freshDb && freshDb.productos) {
                             db = freshDb;
+                            window.db = db;
                             loadCatalog();
                             renderCart();
                             updateCartBadge();

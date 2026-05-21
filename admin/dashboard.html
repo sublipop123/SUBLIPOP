@@ -2805,12 +2805,17 @@
                     localStorage.setItem('sublipop_db', JSON.stringify(db));
                 } else if (localDb) {
                     db = localDb;
+                    // Seed Firestore with local data so it survives cache clearing
+                    await saveDatabase();
                 } else {
+                    // First ever load: seed Firestore with initial data
                     db = JSON.parse(JSON.stringify(freshData));
                     if (!db.tickets) db.tickets = [];
                     if (!db.usuarios) db.usuarios = [];
                     if (!db.modelos3d) db.modelos3d = [];
                     if (!db.modelos3dSeleccionados) db.modelos3dSeleccionados = [];
+                    await saveDatabase();
+                    localStorage.setItem('sublipop_db', JSON.stringify(db));
                 }
                 initApp();
             } catch (error) {
@@ -3294,7 +3299,7 @@
         }
 
         // Category tabs
-        function renderCategoryTabs() {
+        async function renderCategoryTabs() {
             const container = document.getElementById('categoryTabs');
             const cats = db.categorias || [
                 { id: 'tazas', nombre: 'Tazas', icon: '☕' },
@@ -3303,7 +3308,10 @@
                 { id: 'hogar', nombre: 'Hogar', icon: '🏠' },
                 { id: 'accesorios', nombre: 'Accesorios', icon: '💼' }
             ];
-            db.categorias = cats;
+            if (!db.categorias || db.categorias.length === 0) {
+                db.categorias = cats;
+                await saveDatabase();
+            }
 
             let html = '<button class="category-tab active" data-category="all">Todos</button>';
             cats.forEach(cat => {
@@ -4255,8 +4263,9 @@
                     }
                 });
 
-                if (freshLocal.usuarios) {
+                if (freshLocal.usuarios && freshLocal.usuarios.length !== db.usuarios?.length) {
                     db.usuarios = freshLocal.usuarios;
+                    hasChanges = true;
                 }
 
                 // Show notifications for new/changed tickets
