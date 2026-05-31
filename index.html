@@ -22,6 +22,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
     <script src="assets/firebase-config.js"></script>
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -3838,14 +3839,15 @@
             <!-- Email Verification -->
             <div id="regVerifyPanel" style="display:none;text-align:center;">
                 <h4 style="color:var(--text-primary);margin-bottom:0.5rem;margin-top:1rem;">Verifica tu correo</h4>
-                <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem;">Ingresa el código de 4 dígitos</p>
-                <div id="regSimulatedCode" style="background:rgba(224,64,251,0.1);border:1px solid rgba(224,64,251,0.3);border-radius:8px;padding:0.5rem;margin-bottom:1rem;">
-                    <p style="font-size:0.7rem;color:var(--text-muted);">Modo demo - Tu código es:</p>
-                    <p style="font-size:1.5rem;font-weight:700;color:var(--primary);letter-spacing:0.3em;" id="regCodeDisplay"></p>
+                <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">Te enviamos un enlace de verificación a:</p>
+                <p style="font-size:0.9rem;color:var(--primary);font-weight:600;margin-bottom:1rem;" id="regVerifyEmailDisplay"></p>
+                <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1.5rem;">Revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.</p>
+                <div style="background:rgba(224,64,251,0.1);border:1px solid rgba(224,64,251,0.3);border-radius:8px;padding:1rem;margin-bottom:1rem;">
+                    <p style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.5rem;">¿No recibiste el correo?</p>
+                    <button onclick="resendVerificationEmail()" id="resendVerifyBtn" style="background:none;border:none;color:var(--primary);font-size:0.85rem;cursor:pointer;text-decoration:underline;">Reenviar correo</button>
                 </div>
-                <input type="text" maxlength="4" id="regCodeInput" placeholder="0000" style="width:100px;padding:0.75rem;border-radius:8px;border:2px solid var(--primary);background:var(--bg-tertiary);color:var(--text-primary);font-size:1.3rem;text-align:center;letter-spacing:0.5em;font-weight:700;margin-bottom:1rem;">
-                <br>
-                <button class="btn btn-primary" onclick="verifyRegCode()" style="width:100%;">Verificar y Crear Cuenta</button>
+                <button class="btn btn-secondary" onclick="checkEmailVerified()" style="width:100%;">Ya verifiqué mi correo → Iniciar Sesión</button>
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-top:1rem;">También puedes <a href="#" onclick="backToRegister();return false;" style="color:var(--primary);">volver y usar otro correo</a></p>
             </div>
 
             <!-- Logged In View -->
@@ -3919,15 +3921,9 @@
             <!-- Step 2: Email verification (for new users) -->
             <div id="cartVerifyCode" style="display:none;text-align:center;">
                 <div style="margin-bottom:1rem;color:var(--primary);"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></div>
-                <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">Ingresa el código de 4 dígitos enviado a tu correo</p>
-                <p style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.75rem;" id="verifyEmailDisplay"></p>
+                <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">Ingresa el código de 6 dígitos enviado a tu correo</p>
                 <div style="display:flex;gap:8px;justify-content:center;margin-bottom:0.75rem;">
-                    <input type="text" maxlength="4" id="verifyCodeInput" placeholder="0000" style="width:100px;padding:0.75rem;border-radius:8px;border:2px solid var(--primary);background:var(--bg-tertiary);color:var(--text-primary);font-size:1.3rem;text-align:center;letter-spacing:0.5em;font-weight:700;">
-                </div>
-                <!-- Simulated code display (remove in production) -->
-                <div id="simulatedCode" style="background:rgba(224,64,251,0.1);border:1px solid rgba(224,64,251,0.3);border-radius:8px;padding:0.5rem;margin-bottom:0.75rem;">
-                    <p style="font-size:0.7rem;color:var(--text-muted);"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Modo demo - Tu código es:</p>
-                    <p style="font-size:1.5rem;font-weight:700;color:var(--primary);letter-spacing:0.3em;" id="simulatedCodeValue"></p>
+                    <input type="text" maxlength="6" id="verifyCodeInput" placeholder="000000" style="width:120px;padding:0.75rem;border-radius:8px;border:2px solid var(--primary);background:var(--bg-tertiary);color:var(--text-primary);font-size:1.3rem;text-align:center;letter-spacing:0.5em;font-weight:700;">
                 </div>
                 <button class="btn btn-primary" onclick="verifyCode()" style="width:100%;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><polyline points="20 6 9 17 4 12"></polyline></svg> Verificar</button>
                 <button class="btn btn-secondary" onclick="hideOrderForm()" style="width:100%;margin-top:0.5rem;font-size:0.8rem;">Cancelar</button>
@@ -4388,6 +4384,16 @@
         // Firebase Auth state listener (replaces localStorage user session)
         window.firebaseAuth.onAuthStateChanged(async (firebaseUser) => {
             if (firebaseUser) {
+                // Check email verification - only allow fully verified users
+                await firebaseUser.reload();
+                if (!firebaseUser.emailVerified) {
+                    // Email not verified - sign out and show message
+                    await window.firebaseAuth.signOut();
+                    currentUser = null;
+                    showToast('Por favor verifica tu correo antes de iniciar sesión', 'warning');
+                    return;
+                }
+
                 // Look up extra profile data in Firestore
                 try {
                     const doc = await window.collections.usuarios.doc(firebaseUser.uid).get();
@@ -4973,17 +4979,75 @@
 
                 // Send real email verification
                 await cred.user.sendEmailVerification();
-                alert('Cuenta creada. Revisa tu correo para verificar tu email antes de iniciar sesión.');
 
+                // Show verification panel instead of alert
                 document.getElementById('regNameField').value = '';
                 document.getElementById('regEmailField').value = '';
                 document.getElementById('regPhoneField').value = '';
                 document.getElementById('regPasswordField').value = '';
                 document.getElementById('regPasswordConfirm').value = '';
-                switchLoginTab('login');
+                document.getElementById('registerFormPanel').style.display = 'none';
+                document.getElementById('loggedInPanel').style.display = 'none';
+                document.getElementById('regVerifyPanel').style.display = 'block';
+                document.getElementById('regVerifyEmailDisplay').textContent = email;
+
+                // Sign out so user must verify first
+                await window.firebaseAuth.signOut();
             } catch (error) {
                 alert(getAuthErrorMessage(error.code));
             }
+        }
+
+        // Resend verification email
+        async function resendVerificationEmail() {
+            const user = window.firebaseAuth.currentUser;
+            if (user) {
+                try {
+                    await user.sendEmailVerification();
+                    const btn = document.getElementById('resendVerifyBtn');
+                    btn.textContent = 'Correo reenviado ✓';
+                    btn.disabled = true;
+                    setTimeout(() => {
+                        btn.textContent = 'Reenviar correo';
+                        btn.disabled = false;
+                    }, 5000);
+                } catch (e) {
+                    alert('No se pudo reenviar el correo. Intenta más tarde.');
+                }
+            }
+        }
+
+        // Check if email is verified and complete login
+        async function checkEmailVerified() {
+            const user = window.firebaseAuth.currentUser;
+            if (!user) {
+                alert('Tu sesión expiró. Por favor inicia sesión.');
+                switchLoginTab('login');
+                return;
+            }
+            await user.reload();
+            if (user.emailVerified) {
+                // Update verificado in Firestore
+                try {
+                    await window.collections.usuarios.doc(user.uid).update({ verificado: true });
+                } catch (e) { console.error(e); }
+                // Refresh user data and close modal
+                const doc = await window.collections.usuarios.doc(user.uid).get();
+                if (doc.exists) {
+                    currentUser = { id: user.uid, email: user.email, ...doc.data() };
+                }
+                closeLoginModal();
+                updateLoginButton();
+                showToast('¡Cuenta verificada! Bienvenido.', 'success');
+            } else {
+                alert('Aún no has verificado tu correo. Revisa tu bandeja de entrada o espera unos minutos.');
+            }
+        }
+
+        // Go back to registration form
+        function backToRegister() {
+            document.getElementById('regVerifyPanel').style.display = 'none';
+            document.getElementById('registerFormPanel').style.display = 'block';
         }
 
         // Legacy verify code function – no longer needed with Firebase Auth email verification

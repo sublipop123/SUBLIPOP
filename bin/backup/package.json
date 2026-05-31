@@ -1,0 +1,13 @@
+{
+  "name": "softme-backup",
+  "version": "1.0.0",
+  "description": "Backup script for Firestore data",
+  "main": "backup.js",
+  "scripts": {
+    "backup": "node backup.js",
+    "restore": "node restore.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
