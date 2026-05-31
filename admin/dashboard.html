@@ -4055,10 +4055,25 @@
             window.location.href = 'login.html';
         }
 
-        // Auth Check with Firebase
+        // Auth Check with Firebase - validate admin role
         window.firebaseAuth.onAuthStateChanged(user => {
             if (!user) {
                 window.location.href = 'login.html';
+            } else {
+                // Verify admin role in Firestore
+                window.firestoreDB.collection('usuarios').doc(user.uid).get().then(doc => {
+                    if (!doc.exists || doc.data().role !== 'admin') {
+                        // Not admin, sign out and redirect
+                        window.firebaseAuth.signOut().then(() => {
+                            window.location.href = 'login.html';
+                        });
+                    }
+                }).catch(() => {
+                    // Error checking role, default deny
+                    window.firebaseAuth.signOut().then(() => {
+                        window.location.href = 'login.html';
+                    });
+                });
             }
         });
 
