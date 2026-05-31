@@ -219,7 +219,7 @@
         const loginBtn = document.getElementById('loginBtn');
 
         // Check if user is already logged in
-        auth.onAuthStateChanged(user => {
+        firebaseAuth.onAuthStateChanged(user => {
             if (user) {
                 window.location.href = 'dashboard.html';
             }
@@ -235,7 +235,7 @@
             loginError.classList.remove('show');
 
             try {
-                await auth.signInWithEmailAndPassword(email, pass);
+                await firebaseAuth.signInWithEmailAndPassword(email, pass);
                 window.location.href = 'dashboard.html';
             } catch (error) {
                 console.error('Login error:', error);
