@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Setup Admin</title>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <h1>Crear Admin</h1>
+  <p>Esta página se eliminará después de uso.</p>
+
+  <button id="btnCrear">Crear Admin Ahora</button>
+  <pre id="output"></pre>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBvX_nBtedUQBKHRwjC_QK2hMgfuSkmL-g",
+      authDomain: "sublipop-3ab61.firebaseapp.com",
+      projectId: "sublipop-3ab61",
+      storageBucket: "sublipop-3ab61.firebasestorage.app",
+      messagingSenderId: "1041815206193",
+      appId: "1:1041815206193:web:ce172e9195896780fd1810"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    document.getElementById('btnCrear').onclick = async () => {
+      const email = 'admin@sublipop.com';
+      const password = 'GoNoTeam2026!';
+      const output = document.getElementById('output');
+
+      try {
+        // Intentar crear usuario
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        output.textContent = '✅ Admin creado!\nEmail: ' + email + '\nUID: ' + cred.user.uid;
+
+        // Guardar en Firestore como admin
+        await db.collection('usuarios').doc(cred.user.uid).set({
+          email: email,
+          role: 'admin',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          nombre: 'Administrador'
+        });
+        output.textContent += '\n✅ Guardado en Firestore como admin';
+      } catch (e) {
+        if (e.code === 'auth/email-already-in-use') {
+          output.textContent = 'ℹ️ El usuario ya existe. Intentando verificar...';
+          // Listo, el admin ya existe
+          output.textContent += '\n✅ El admin ya está registrado';
+        } else {
+          output.textContent = '❌ Error: ' + e.message;
+        }
+      }
+    };
+  </script>
+</body>
+</html>
