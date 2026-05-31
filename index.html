@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseio.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://api.neuroapi.net https://ipapi.co; frame-src 'none'; object-src 'none'; base-uri 'self';">
     <title>Subli Pop | Arte en Sublimación Premium</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4638,7 +4643,7 @@
 
         function processOrderStep1() {
             if (currentUser) {
-                // User already logged in, skip to confirmation
+                // User already logged in (verified via Firebase Auth), skip to confirmation
                 showFinalConfirm();
                 return;
             }
@@ -4654,11 +4659,6 @@
 
             // Guest checkout: store order data and proceed to confirmation
             pendingOrderData = { name, email, phone, notes };
-            showFinalConfirm();
-        }
-
-        function verifyCode() {
-            // Legacy verification removed; orders now use guest checkout or Firebase Auth login
             showFinalConfirm();
         }
 
